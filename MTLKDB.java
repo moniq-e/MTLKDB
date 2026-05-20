@@ -1,3 +1,5 @@
+import core.CLI;
+
 public class MTLKDB {
     private CLI cli;
 
