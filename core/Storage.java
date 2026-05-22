@@ -6,15 +6,15 @@ import struct.Row;
 
 public interface Storage {
     
-    public void createTable(String tableName, Column[] columns);
+    public Row[] createTable(String tableName, Column[] columns);
 
-    public void insertRow(String tableName, Row row);
+    public Row[] insertRow(String tableName, Row row);
 
-    public void insertRows(String tableName, Row[] rows);
+    public Row[] insertRows(String tableName, Row[] rows);
 
-    public void deleteRow(String tableName, Object primaryKey);
+    public Row[] deleteRow(String tableName, Object primaryKey);
 
-    public void deleteRows(String tableName, Object[] primaryKey);
+    public Row[] deleteRows(String tableName, Object[] primaryKey);
 
-    public Row[] select(String tableName, Expression expression);
+    public Row[] select(String tableName, String[] columns, Expression expression);
 }
