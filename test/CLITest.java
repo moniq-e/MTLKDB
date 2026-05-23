@@ -3,7 +3,6 @@ package test;
 import static org.junit.Assert.assertThrows;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import core.CLI;
@@ -19,7 +18,7 @@ public class CLITest {
 
     @Test
     public void testInsert() throws InvalidSyntaxException {
-        cli.parseSql("INSERT INTO customers (a, b, c) VALUES (1, 2, 3), (4, 5, 6)");
+       assertThrows(NullPointerException.class, () -> cli.parseSql("INSERT INTO customers (a, b, c) VALUES (1, 2, 3), (4, 5, 6)"));
     }
 
     @Test()

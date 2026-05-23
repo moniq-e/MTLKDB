@@ -1,29 +1,56 @@
 package struct;
-public enum ColumnType {
-    VARCHAR(String.class),
-    INT(Integer.class, 4),
-    LONG(Long.class, 8),
-    FLOAT(Float.class, 4),
-    DOUBLE(Double.class, 8);
 
-    private int size;
-    private Class<?> dataType;
+public class ColumnType {
+    private final String name;
+    private final Class<?> dataType;
+    private final int size;
 
-    ColumnType(Class<?> dataType) {
-        this.dataType = dataType;
-    }
+    public static final ColumnType INT = new ColumnType("INT", Integer.class, 4);
+    public static final ColumnType LONG = new ColumnType("LONG", Long.class, 8);
+    public static final ColumnType FLOAT = new ColumnType("FLOAT", Float.class, 4);
+    public static final ColumnType DOUBLE = new ColumnType("DOUBLE", Double.class, 8);
 
-    ColumnType(Class<?> dataType, int size) {
+    private ColumnType(String name, Class<?> dataType, int size) {
+        this.name = name;
         this.dataType = dataType;
         this.size = size;
+    }
+
+    public static ColumnType varchar(int size) {
+        return new ColumnType("VARCHAR", String.class, size);
+    }
+
+    public static ColumnType fromString(String typeName) {
+        typeName = typeName.toUpperCase().replace(",", "");
+
+        if (typeName.startsWith("VARCHAR")) {
+            return varchar(Integer.parseInt(typeName.replaceAll("VARCHAR|\\(|\\)", "")));
+        }
+
+        switch (typeName) {
+            case "INT":
+                return INT;
+            case "LONG":
+                return LONG;
+            case "FLOAT":
+                return FLOAT;
+            case "DOUBLE":
+                return DOUBLE;
+            default:
+                throw new IllegalArgumentException("Unknown column type: " + typeName);
+        }
+    }
+
+    public boolean isVarchar() {
+        return getName().equals("VARCHAR");
+    }
+
+    public String getName() {
+        return name;
     }
 
     public int getSize() {
         return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     @SuppressWarnings("unchecked")

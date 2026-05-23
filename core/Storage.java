@@ -5,8 +5,10 @@ import struct.Column;
 import struct.Row;
 
 public interface Storage {
-    
+
     public Row[] createTable(String tableName, Column[] columns);
+
+    public Row[] createDatabase(String dbName);
 
     public Row[] insertRow(String tableName, Row row);
 
