@@ -20,13 +20,16 @@ public class ColumnType {
         return new ColumnType("VARCHAR", String.class, size);
     }
 
-    public static ColumnType fromString(String typeName) {
+    public static ColumnType fromString(String typeName, String size) {
         typeName = typeName.toUpperCase().replace(",", "");
 
-        if (typeName.startsWith("VARCHAR")) {
-            return varchar(Integer.parseInt(typeName.replaceAll("VARCHAR|\\(|\\)", "")));
+        if (typeName.equals("VARCHAR")) {
+            return varchar(Integer.parseInt(size));
         }
+        return fromString(typeName);
+    }
 
+    private static ColumnType fromString(String typeName) {
         switch (typeName) {
             case "INT":
                 return INT;
