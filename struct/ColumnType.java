@@ -21,9 +21,7 @@ public class ColumnType {
     }
 
     public static ColumnType fromString(String typeName, String size) {
-        typeName = typeName.toUpperCase().replace(",", "");
-
-        if (typeName.equals("VARCHAR")) {
+        if (typeName.equalsIgnoreCase("VARCHAR")) {
             return varchar(Integer.parseInt(size));
         }
         return fromString(typeName);

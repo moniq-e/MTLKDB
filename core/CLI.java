@@ -9,6 +9,7 @@ import struct.Row;
 import struct.Column;
 import struct.ColumnType;
 import struct.ConstraintMap;
+import struct.Constraints;
 
 public class CLI {
     private Storage storage;
@@ -45,13 +46,13 @@ public class CLI {
     }
 
     private Row[] parseInsert(ArrayList<String> tokens) throws InvalidSyntaxException {
-        if (!tokens.get(1).toUpperCase().equals("INTO")) throw new InvalidSyntaxException("INSERT statements needs to be followed by INTO keyword.");
+        if (!tokens.get(1).equalsIgnoreCase("INTO")) throw new InvalidSyntaxException("INSERT statements needs to be followed by INTO keyword.");
 
         var tableName = tokens.get(2);
 
         String[] columns = null;
         int end = 4, index;
-        if (!tokens.get(3).toUpperCase().equals("VALUES")) {
+        if (!tokens.get(3).equalsIgnoreCase("VALUES")) {
             if (tokens.get(3).equals("(")) {
                 while (!tokens.get(end).equals(")")) end++;
             } else {
@@ -64,7 +65,7 @@ public class CLI {
             index = 3;
         }
 
-        if (!tokens.get(index).toUpperCase().equals("VALUES")) throw new InvalidSyntaxException("Use VALUES keyword before rows.");
+        if (!tokens.get(index).equalsIgnoreCase("VALUES")) throw new InvalidSyntaxException("Use VALUES keyword before rows.");
 
         //index == VALUES
         var rows = new ArrayList<Row>();
@@ -102,7 +103,7 @@ public class CLI {
             index = 2;
         }
 
-        if (!tokens.get(index).toUpperCase().equals("FROM")) throw new InvalidSyntaxException("Use 'FROM table_name' to select from a table.");
+        if (!tokens.get(index).equalsIgnoreCase("FROM")) throw new InvalidSyntaxException("Use 'FROM table_name' to select from a table.");
         var tableName = tokens.get(++index);
 
         Expression expression = null;
@@ -158,7 +159,35 @@ public class CLI {
     }
 
     private ConstraintMap[] extractConstraints(ArrayList<String> tokens, int init) {
-        
+        var constraints = new ArrayList<ConstraintMap>();
+        var index = init;
+
+        while (index < tokens.size()) {
+            var token = tokens.get(index);
+            if (token.equals(",") || token.equals(")") || token.equals(";")) {
+                break;
+            }
+
+            switch (token.toUpperCase()) {
+                case "PRIMARY" -> {
+                    index++;
+                    constraints.add(new ConstraintMap(Constraints.PRIMARY, null));
+                }
+                case "DEFAULT" -> {
+                    index++;
+                    if (index >= tokens.size()) break;
+
+                    var valueToken = tokens.get(index).replaceAll("^'+|'+$", "");
+                    var value = valueToken.equalsIgnoreCase("NULL") ? null : valueToken;
+                    constraints.add(new ConstraintMap(Constraints.DEFAULT, value));
+                    index++;
+                }
+                default -> {
+                    index = tokens.size();
+                }
+            }
+        }
+        return constraints.isEmpty() ? null : constraints.toArray(new ConstraintMap[constraints.size()]);
     }
 
     /**
