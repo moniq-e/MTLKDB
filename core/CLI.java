@@ -21,6 +21,8 @@ public class CLI {
         if (!sql.endsWith(";")) sql = sql.concat(";");
 
         sql = sql
+            .replace(",)", ")")
+            .replace(",", " , ")
             .replace(";", " ; ")
             .replace("(", " ( ")
             .replace(")", " ) ")
@@ -56,7 +58,7 @@ public class CLI {
                 throw new InvalidSyntaxException("Specify columns between parenthesis or do not and use VALUES for all columns.");
             }
             //end == )
-            columns = extractColumnNames(tokens, 4, end - 1);
+            columns = extractColumnNames(tokens, 4, end);
             index = end + 1;
         } else {
             index = 3;
@@ -73,7 +75,7 @@ public class CLI {
                 while (!tokens.get(end).equals(")")) end++;
             }
             //end == )
-            rows.add(extractRow(columns, tokens, index + 1, end - 1));
+            rows.add(extractRow(columns, tokens, index + 1, end));
             index = end + 1;
         }
 
@@ -94,7 +96,7 @@ public class CLI {
                 throw new InvalidSyntaxException("Specify columns between parenthesis or use '*' for all columns.");
             }
             //end == )
-            columns = extractColumnNames(tokens, 2, end - 1);
+            columns = extractColumnNames(tokens, 2, end);
             index = end + 1;
         } else {
             index = 2;
@@ -143,10 +145,11 @@ public class CLI {
                 init += 4;
             } else init++;
 
-            var constraints = extractConstraints(tokens, init);
-
-            if (tokens.get(init).endsWith(",")) {
+            ConstraintMap[] constraints = null;
+            if (tokens.get(init).equals(",") || tokens.get(init).equals(")")) {
                 init++;
+            } else {
+                constraints = extractConstraints(tokens, init);
             }
 
             res.add(new Column(name, type, constraints));
@@ -158,21 +161,31 @@ public class CLI {
         
     }
 
+    /**
+     * @param init Inclusive
+     * @param end Exclusive
+     */
     private String[] extractColumnNames(ArrayList<String> tokens, int init, int end) {
-        var res = new String[end - init + 1];
+        var res = new ArrayList<String>();
 
-        for (int i = 0; i < res.length; i++) {
-            res[i] = tokens.get(init++).replace(",", "");
+        for (int i = init; i < end; i++) {
+            var name = tokens.get(i++);
+            if (!name.equals(",")) res.add(name);
         }
-        return res;
+        return res.toArray(new String[res.size()]);
     }
 
+    /**
+     * @param init Inclusive
+     * @param end Exclusive
+     */
     private Row extractRow(String[] columns, ArrayList<String> tokens, int init, int end) {
-        var values = new Object[end - init + 1];
+        var values = new ArrayList<Object>();
 
-        for (int i = 0; i < values.length; i++) {
-            values[i] = tokens.get(init++).replace(",", "");
+        for (int i = init; i < end; i++) {
+            var name = tokens.get(i++);
+            if (!name.equals(",")) values.add(name);
         }
-        return new Row(columns, values);
+        return new Row(columns, values.toArray());
     }
 }
