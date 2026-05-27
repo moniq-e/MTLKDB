@@ -28,8 +28,8 @@ public class CLI {
             .replace(";", " ; ")
             .replace("(", " ( ")
             .replace(")", " ) ")
-            .replace("=", " = ")
             .replace("!=", " != ")
+            .replaceAll("  (?<!!)=", " = ")
             .replace(">", " > ")
         .replace("<", " < ");
 
