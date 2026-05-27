@@ -3,6 +3,7 @@ package core;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import dto.ExtConstDTO;
 import exception.InvalidSyntaxException;
 import expression.Expression;
 import struct.Row;
@@ -135,7 +136,7 @@ public class CLI {
         }
     }
 
-    private Column[] extractColumns(ArrayList<String> tokens, int init) {
+    private Column[] extractColumns(ArrayList<String> tokens, int init) throws InvalidSyntaxException {
         var res = new ArrayList<Column>();
 
         while (!tokens.get(init).equals(";")) {
@@ -150,7 +151,9 @@ public class CLI {
             if (tokens.get(init).equals(",") || tokens.get(init).equals(")")) {
                 init++;
             } else {
-                constraints = extractConstraints(tokens, init);
+                var dto = extractConstraints(tokens, init);
+                constraints = dto.constraints();
+                init += dto.diff();
             }
 
             res.add(new Column(name, type, constraints));
@@ -158,13 +161,14 @@ public class CLI {
         return res.toArray(new Column[res.size()]);
     }
 
-    private ConstraintMap[] extractConstraints(ArrayList<String> tokens, int init) {
+    private ExtConstDTO extractConstraints(ArrayList<String> tokens, int init) throws InvalidSyntaxException {
         var constraints = new ArrayList<ConstraintMap>();
         var index = init;
 
         while (index < tokens.size()) {
             var token = tokens.get(index);
             if (token.equals(",") || token.equals(")") || token.equals(";")) {
+                index++;
                 break;
             }
 
@@ -183,11 +187,11 @@ public class CLI {
                     index++;
                 }
                 default -> {
-                    index = tokens.size();
+                    throw new InvalidSyntaxException("Invalid keyword '" + token + "'.");
                 }
             }
         }
-        return constraints.isEmpty() ? null : constraints.toArray(new ConstraintMap[constraints.size()]);
+        return new ExtConstDTO(constraints.toArray(new ConstraintMap[constraints.size()]), index - init);
     }
 
     /**

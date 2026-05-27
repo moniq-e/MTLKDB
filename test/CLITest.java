@@ -31,9 +31,9 @@ public class CLITest {
 
     @Test
     public void testCreateTable() throws InvalidSyntaxException {
-       //assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a int, b int, c int)"));
-       //assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a int PRIMARY, b varchar(255) PRIMARY, c int)"));
-       //assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a varchar(11), b varchar(255), c varchar(1));"));
-       assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a varchar(11) PRIMARY, b varchar(255) DEFAULT a, c varchar(1));"));
+        assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a int, b int, c int)"));
+        assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a int PRIMARY, b varchar(255) PRIMARY, c int)"));
+        assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a varchar(11), b varchar(255), c varchar(1));"));
+        assertThrows(NullPointerException.class, () -> cli.parseSql("CREATE TABLE customers (a varchar(11) PRIMARY, b varchar(255) DEFAULT a, c varchar(1));"));
     }
 }

@@ -28,7 +28,7 @@ public class ColumnType {
     }
 
     private static ColumnType fromString(String typeName) {
-        switch (typeName) {
+        switch (typeName.toUpperCase()) {
             case "INT":
                 return INT;
             case "LONG":
