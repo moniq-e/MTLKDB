@@ -2,14 +2,17 @@ package expression;
 
 import struct.Row;
 
-public record NotEquals(String columnName, Object value) implements Expression {
+public record NotEquals(Value a, Value b) implements Expression {
 
     @Override
     public boolean evaluate(Row row) {
-        if (row.getValue(columnName) == null) {
-            return value != null;
+        var aValue = a.evaluate(row);
+        var bValue = b.evaluate(row);
+
+        if (aValue == null) {
+            return bValue != null;
         }
 
-        return !row.getValue(columnName).equals(value);
+        return !aValue.equals(bValue);
     }
 }
