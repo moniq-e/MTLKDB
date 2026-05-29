@@ -1,6 +1,7 @@
 package expression;
 
 import struct.Row;
+import struct.value.Value;
 
 public record Equals(Value a, Value b) implements Expression {
 

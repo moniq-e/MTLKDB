@@ -1,12 +1,12 @@
 package core;
 
 import expression.Expression;
-import struct.Column;
+import struct.ColumnDefinition;
 import struct.Row;
 
 public interface Storage {
 
-    public Row[] createTable(String tableName, Column[] columns);
+    public Row[] createTable(String tableName, ColumnDefinition[] columns);
 
     public Row[] createDatabase(String dbName);
 

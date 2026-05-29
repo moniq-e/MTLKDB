@@ -7,7 +7,7 @@ import dto.ExtConstDTO;
 import exception.InvalidSyntaxException;
 import expression.Expression;
 import struct.Row;
-import struct.Column;
+import struct.ColumnDefinition;
 import struct.ColumnType;
 import struct.ConstraintMap;
 import struct.Constraints;
@@ -136,8 +136,8 @@ public class CLI {
         }
     }
 
-    private Column[] extractColumns(ArrayList<String> tokens, int init) throws InvalidSyntaxException {
-        var res = new ArrayList<Column>();
+    private ColumnDefinition[] extractColumns(ArrayList<String> tokens, int init) throws InvalidSyntaxException {
+        var res = new ArrayList<ColumnDefinition>();
 
         while (!tokens.get(init).equals(";")) {
             var name = tokens.get(init++);
@@ -156,9 +156,9 @@ public class CLI {
                 init += dto.diff();
             }
 
-            res.add(new Column(name, type, constraints));
+            res.add(new ColumnDefinition(name, type, constraints));
         }
-        return res.toArray(new Column[res.size()]);
+        return res.toArray(new ColumnDefinition[res.size()]);
     }
 
     private ExtConstDTO extractConstraints(ArrayList<String> tokens, int init) throws InvalidSyntaxException {

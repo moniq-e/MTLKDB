@@ -1,15 +1,15 @@
 package expression;
 
 import struct.Row;
+import struct.value.Value;
 
-public record GreaterThan(String columnName, Comparable<Object> value) implements Expression {
+public record GreaterThan(Value a, Value b) implements Expression {
 
     @Override
     public boolean evaluate(Row row) {
-        if (value == null) {
-            return false;
-        }
+        var aValue = a.evaluate(row);
+        var bValue = b.evaluate(row);
 
-        return value.compareTo(row.getValue(columnName)) < 0;
+        return aValue.compareTo(bValue) < 0;
     }
 }

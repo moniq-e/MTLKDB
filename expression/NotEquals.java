@@ -1,6 +1,7 @@
 package expression;
 
 import struct.Row;
+import struct.value.Value;
 
 public record NotEquals(Value a, Value b) implements Expression {
 
