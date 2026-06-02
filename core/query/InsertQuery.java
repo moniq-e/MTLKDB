@@ -1,32 +1,21 @@
 package core.query;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import core.Storage;
 import struct.Row;
-import struct.ColumnDefinition;
+import struct.value.ByteBufferEncoder;
+import struct.ArrayAsCollection;
 
-/**
- * Fluent API for building INSERT queries.
- * 
- * Usage:
- * InsertQuery query = new InsertQuery(storage)
- *     .into("customers")
- *     .columns("id", "name", "age")
- *     .values(1, "Alice", 30)
- *     .values(2, "Bob", 25);
- * Row[] result = query.execute();
- */
 public class InsertQuery {
     private Storage storage;
     private String tableName;
     private String[] columns;
-    private List<Object[]> valuesList;
+    private ArrayList<String[]> values;
 
     public InsertQuery(Storage storage) {
         this.storage = storage;
-        this.valuesList = new ArrayList<>();
+        this.values = new ArrayList<>();
     }
 
     public InsertQuery into(String table) {
@@ -39,26 +28,32 @@ public class InsertQuery {
         return this;
     }
 
-    public InsertQuery values(Object... vals) {
-        valuesList.add(vals);
+    public InsertQuery values(String... vals) {
+        values.add(vals);
+        return this;
+    }
+
+    public InsertQuery values(String[]... vals) {
+        values.addAll(new ArrayAsCollection<>(vals));
         return this;
     }
 
     public Row[] execute() {
-        if (tableName == null) {
+        if (tableName == null || tableName.isBlank()) {
             throw new IllegalStateException("Table name not specified. Use into(tableName).");
         }
-        if (valuesList.isEmpty()) {
+
+        if (values.isEmpty()) {
             throw new IllegalStateException("No values specified. Use values(...).");
         }
 
-        if (valuesList.size() == 1) {
-            Row row = new Row(columns, valuesList.get(0));
+        if (values.size() == 1) {
+            Row row = new Row(columns, ByteBufferEncoder.encodeValues(values.get(0)));
             return storage.insertRow(tableName, row);
         } else {
-            Row[] rows = valuesList.stream()
-                    .map(vals -> new Row(columns, vals))
-                    .toArray(Row[]::new);
+            var rows = values.stream()
+                .map(vals -> new Row(columns, ByteBufferEncoder.encodeValues(vals)))
+                .toArray(Row[]::new);
             return storage.insertRows(tableName, rows);
         }
     }

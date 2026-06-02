@@ -1,3 +1,5 @@
 package struct;
 
-public record ColumnDefinition(String name, ColumnType columnType, ConstraintMap[] constraints) {}
+import org.jetbrains.annotations.Nullable;
+
+public record ColumnDefinition(String name, ColumnType columnType, @Nullable ConstraintMap[] constraints) {}

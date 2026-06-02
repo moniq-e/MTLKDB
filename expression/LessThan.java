@@ -1,15 +1,15 @@
 package expression;
 
 import struct.Row;
-import struct.value.Value;
+import struct.value.LiteralValue;
 
-public record LessThan(Value a, Value b) implements Expression {
+public record LessThan(LiteralValue a, LiteralValue b) implements Expression {
 
     @Override
     public boolean evaluate(Row row) {
         var aValue = a.evaluate(row);
         var bValue = b.evaluate(row);
 
-        return aValue.compareTo(bValue) > 0;
+        return aValue.compareTo(bValue) < 0;
     }
 }

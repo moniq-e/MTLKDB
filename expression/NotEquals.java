@@ -1,19 +1,15 @@
 package expression;
 
 import struct.Row;
-import struct.value.Value;
+import struct.value.LiteralValue;
 
-public record NotEquals(Value a, Value b) implements Expression {
+public record NotEquals(LiteralValue a, LiteralValue b) implements Expression {
 
     @Override
     public boolean evaluate(Row row) {
         var aValue = a.evaluate(row);
         var bValue = b.evaluate(row);
 
-        if (aValue == null) {
-            return bValue != null;
-        }
-
-        return !aValue.equals(bValue);
+        return aValue.compareTo(bValue) != 0;
     }
 }

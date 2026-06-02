@@ -1,10 +1,18 @@
-package struct;
+package struct.value;
 
 import org.jetbrains.annotations.Nullable;
 
 public class ByteBufferEncoder {
 
     private ByteBufferEncoder() {}
+
+    public static byte[][] encodeValues(String[] values) {
+        var res = new byte[values.length][];
+        for (int i = 0; i < values.length; i++) {
+            res[i] = encodeString(values[i]);
+        }
+        return res;
+    }
 
     @Nullable
     public static byte[] encodeString(String value) {

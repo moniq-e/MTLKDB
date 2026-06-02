@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.NotNull;
 
-import struct.ByteBufferEncoder;
 import struct.Row;
 
 public class LiteralValue implements Comparable<LiteralValue> {
