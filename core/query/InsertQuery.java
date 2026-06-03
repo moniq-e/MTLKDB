@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import core.Storage;
 import struct.Row;
-import struct.value.ByteBufferEncoder;
-import struct.ArrayAsCollection;
+import struct.util.ArrayAsCollection;
+import struct.util.ByteBufferEncoder;
 
 public class InsertQuery {
     private Storage storage;

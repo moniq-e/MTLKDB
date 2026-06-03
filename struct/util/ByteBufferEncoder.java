@@ -1,4 +1,4 @@
-package struct.value;
+package struct.util;
 
 import org.jetbrains.annotations.Nullable;
 

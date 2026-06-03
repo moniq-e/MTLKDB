@@ -1,4 +1,4 @@
-package struct;
+package struct.util;
 
 import java.util.Collection;
 import java.util.Iterator;

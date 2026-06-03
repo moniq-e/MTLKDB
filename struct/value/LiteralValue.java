@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 import struct.Row;
+import struct.util.ByteBufferEncoder;
 
 public class LiteralValue implements Comparable<LiteralValue> {
     private byte[] buffer;

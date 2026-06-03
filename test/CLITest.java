@@ -1,21 +1,61 @@
 package test;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
 
+import core.Storage;
 import core.query.QueryBuilder;
 import exception.InvalidSyntaxException;
 import expression.Equals;
+import struct.ColumnDefinition;
 import struct.ColumnType;
 import struct.ConstraintMap;
+import struct.Row;
 import struct.value.LiteralValue;
 
 public class CLITest {
+    private Storage storage = new Storage() {
+        @Override
+        public Row[] createTable(String tableName, ColumnDefinition[] columns) {
+            return new Row[0];
+        }
+
+        @Override
+        public Row[] createDatabase(String dbName) {
+            return new Row[0];
+        }
+
+        @Override
+        public Row[] insertRow(String tableName, Row row) {
+            return new Row[] { row };
+        }
+
+        @Override
+        public Row[] insertRows(String tableName, Row[] rows) {
+            return new Row[0];
+        }
+
+        @Override
+        public Row[] deleteRow(String tableName, Object primaryKey) {
+            return new Row[0];
+        }
+
+        @Override
+        public Row[] deleteRows(String tableName, Object[] primaryKeys) {
+            return new Row[0];
+        }
+
+        @Override
+        public Row[] select(String tableName, String[] columns, expression.Expression expression) {
+            return new Row[0];
+        }
+    };
+    private Row[] emptyArray = new Row[0];
 
     @Test
     public void testInsert() throws InvalidSyntaxException {
-        assertThrows(NullPointerException.class, () -> QueryBuilder.insert(null)
+        assertArrayEquals(emptyArray, QueryBuilder.insert(storage)
             .into("customers")
             .values("a", "b", "c")
             .values("d", "e", "f")
@@ -24,23 +64,23 @@ public class CLITest {
 
     @Test()
     public void testSelect() throws InvalidSyntaxException {
-        assertThrows(NullPointerException.class, () -> QueryBuilder.select(null)
+        assertArrayEquals(emptyArray, QueryBuilder.select(storage)
             .columns("a", "b", "c")
             .from("customers")
         .execute());
 
-        assertThrows(NullPointerException.class, () -> QueryBuilder.select(null)
+        assertArrayEquals(emptyArray, QueryBuilder.select(storage)
             .columns("*")
             .from("customers")
         .execute());
 
-        assertThrows(NullPointerException.class, () -> QueryBuilder.select(null)
+        assertArrayEquals(emptyArray, QueryBuilder.select(storage)
             .columns("*")
             .from("customers")
             .where(new Equals(new LiteralValue("a"), new LiteralValue("b")))
         .execute());
 
-        assertThrows(NullPointerException.class, () -> QueryBuilder.select(null)
+        assertArrayEquals(emptyArray, QueryBuilder.select(storage)
             .columns("*")
             .from("customers")
             .where(new Equals(new LiteralValue("a"), new LiteralValue("b")))
@@ -50,28 +90,28 @@ public class CLITest {
 
     @Test
     public void testCreateTable() throws InvalidSyntaxException {
-        assertThrows(NullPointerException.class, () -> QueryBuilder.createTable(null)
+        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.INT)
             .column("b", ColumnType.INT)
             .column("c", ColumnType.INT)
         .execute());
 
-        assertThrows(NullPointerException.class, () -> QueryBuilder.createTable(null)
+        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.INT)
             .column("b", ColumnType.varchar(255), ConstraintMap.PRIMARY())
             .column("c", ColumnType.INT)
         .execute());
 
-        assertThrows(NullPointerException.class, () -> QueryBuilder.createTable(null)
+        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.varchar(11))
             .column("b", ColumnType.varchar(255))
             .column("c", ColumnType.varchar(1))
         .execute());
 
-        assertThrows(NullPointerException.class, () -> QueryBuilder.createTable(null)
+        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.varchar(11), ConstraintMap.PRIMARY())
             .column("b", ColumnType.varchar(255), ConstraintMap.DEFAULT("a"))
