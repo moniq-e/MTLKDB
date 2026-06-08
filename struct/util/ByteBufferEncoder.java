@@ -32,12 +32,26 @@ public class ByteBufferEncoder {
                 }
             }
         } catch (Exception e) {
-            return value.getBytes();
+            return encodeStringInternal(value);
         }
     }
 
+    private static byte[] encodeStringInternal(String value) {
+        var size = value.length();
+        var bytes = new byte[4 + size];
+
+        size ^= 0x80000000; 
+        bytes[0] = (byte) (size >>> 24);
+        bytes[1] = (byte) (size >>> 16);
+        bytes[2] = (byte) (size >>> 8);
+        bytes[3] = (byte) size;
+
+        System.arraycopy(value.getBytes(), 0, bytes, 4, size);
+        return bytes;
+    }
+
     public static byte[] encodeInt(int value) {
-        byte[] bytes = new byte[4];
+        var bytes = new byte[4];
         value ^= 0x80000000; 
         
         bytes[0] = (byte) (value >>> 24);
@@ -48,7 +62,7 @@ public class ByteBufferEncoder {
     }
 
     public static byte[] encodeLong(long value) {
-        byte[] bytes = new byte[8];
+        var bytes = new byte[8];
         value ^= 0x8000000000000000L;
         
         bytes[0] = (byte) (value >>> 56);
@@ -71,7 +85,7 @@ public class ByteBufferEncoder {
             bits = ~bits;
         }
 
-        byte[] bytes = new byte[4];
+        var bytes = new byte[4];
         bytes[0] = (byte) (bits >>> 24);
         bytes[1] = (byte) (bits >>> 16);
         bytes[2] = (byte) (bits >>> 8);
@@ -88,7 +102,7 @@ public class ByteBufferEncoder {
             bits = ~bits;
         }
 
-        byte[] bytes = new byte[8];
+        var bytes = new byte[8];
         bytes[0] = (byte) (bits >>> 56);
         bytes[1] = (byte) (bits >>> 48);
         bytes[2] = (byte) (bits >>> 40);

@@ -2,17 +2,17 @@ package impl;
 
 import java.io.IOException;
 
-import core.Database;
 import core.Storage;
+import core.persistence.DiskManager;
 import expression.Expression;
 import struct.ColumnDefinition;
 import struct.Row;
 
 public class StorageImpl implements Storage {
-    private Database db;
+    private DiskManager db;
 
     public StorageImpl() throws IOException {
-        db = new Database("default");
+        db = new DiskManager("default");
     }
 
     @Override
