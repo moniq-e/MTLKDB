@@ -6,6 +6,7 @@ import struct.Row;
 public class Table {
     private String tableName;
     private ColumnDefinition[] columns;
+    private 
 
     public Table(String tableName, ColumnDefinition[] columns) {
         this.tableName = tableName;

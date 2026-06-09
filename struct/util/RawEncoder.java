@@ -2,9 +2,9 @@ package struct.util;
 
 import org.jetbrains.annotations.Nullable;
 
-public class ByteBufferEncoder {
+public class RawEncoder {
 
-    private ByteBufferEncoder() {}
+    private RawEncoder() {}
 
     public static byte[][] encodeValues(String[] values) {
         var res = new byte[values.length][];

@@ -2,6 +2,8 @@ package core.persistence;
 
 import java.io.IOException;
 
+import struct.FrameUsage;
+
 public class BufferPool {
     private static final int PAGE_SIZE = DiskManager.PAGE_SIZE;
     private static final int NUM_PAGES = 16;
@@ -12,10 +14,12 @@ public class BufferPool {
     private short dirtyFlags;
     private short occupiedFlags;
 
+    private FrameUsage frameMan;
     private DiskManager diskManager;
 
     public BufferPool(DiskManager diskManager) {
         this.diskManager = diskManager;
+        this.frameMan = new FrameUsage(NUM_PAGES);
         this.memory = new byte[PAGE_SIZE * NUM_PAGES];
         this.pageTable = new int[NUM_PAGES];
         this.dirtyFlags = 0;
@@ -27,6 +31,7 @@ public class BufferPool {
     public Page getPage(int pageId) throws IOException {
         for (int i = 0; i < NUM_PAGES; i++) {
             if (((occupiedFlags >> i) & 1) == 1 && pageTable[i] == pageId) {
+                frameMan.update(i);
                 return extractPage(i);
             }
         }
@@ -44,10 +49,18 @@ public class BufferPool {
             pageTable[freeFrame] = pageId;
 
             diskPageToMemory(pageId);
+            frameMan.update(freeFrame);
             return extractPage(pageId);
         }
         
-        throw new RuntimeException("Buffer Pool cheio! Necessário implementar algoritmo de Eviction.");
+        var lruFrame = frameMan.getLRU();
+        var lruPageId = pageTable[lruFrame];
+        if (((dirtyFlags >> lruFrame) & 1) == 1) {
+            diskManager.writePage(lruPageId, extractRawPage(lruPageId));
+            //dirtyFlags |= (1 << lruFrame);
+        }
+        
+        return getPage(pageId);
     }
     
     public void markDirty(int frameId) {
@@ -55,11 +68,15 @@ public class BufferPool {
     }
 
     private Page extractPage(int pageId) {
+        return new Page(extractRawPage(pageId));
+    }
+
+    private byte[] extractRawPage(int pageId) {
         var res = new byte[PAGE_SIZE];
 
         System.arraycopy(memory, pageId * PAGE_SIZE, res, 0, PAGE_SIZE);
 
-        return new Page(res);
+        return res;
     }
 
     private void diskPageToMemory(int pageId) throws IOException {
