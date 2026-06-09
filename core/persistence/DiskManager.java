@@ -7,8 +7,8 @@ public class DiskManager {
     public static final int PAGE_SIZE = 4096;
     private RandomAccessFile dbFile;
 
-    public DiskManager(String dbName) throws IOException {
-        dbFile = new RandomAccessFile("./" + dbName, "rw");
+    public DiskManager(String fileName) throws IOException {
+        dbFile = new RandomAccessFile("./" + fileName, "rw");
     }
 
     public byte[] readPage(int pageId) throws IOException {

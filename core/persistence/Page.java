@@ -1,28 +1,29 @@
 package core.persistence;
 
+// 1 byte - headerSize | headerSize bytes - header (slots de 2 bytes para cada row)
 public class Page {
-    private byte[] data;
-    
+    private final byte[] data;
+    private short headerSize;
+    private byte[] header;
+
     public Page(byte[] data) {
         this.data = data;
+        this.headerSize = data[0];
+        this.header = new byte[headerSize];
+
+        System.arraycopy(data, 1, header, 0, headerSize);
     }
 
-    // Resolve o acesso à linha específica usando o ID (o seu bloco "IDX")
     public byte[] getRecord(int slotId) {
-        // O cabeçalho da página contém os ponteiros. 
-        // Pula a contagem (2 bytes) + (slotId * 2 bytes por offset)
-        int offsetAddress = 2 + (slotId * 2);
-        int recordStart = data.getShort(offsetAddress);
-        
-        // Move o ponteiro do buffer para a posição exata da linha dentro do array de bytes
-        data.position(recordStart);
-        
-        // Lê o tamanho do registro (ex: 1 byte) e extrai os dados brutos da linha
-        int length = data.get();
-        byte[] recordBytes = new byte[length];
-        data.get(recordBytes);
-        
-        // Este array de bytes bruto será depois desserializado pela classe baseada no "TABLE INFO"
+        int offsetIndex = slotId * 2;
+
+        int recordSizeIdx = (header[offsetIndex] << 8) | header[offsetIndex + 1];
+        int recordStart = recordSizeIdx + 2;
+
+        int size = (data[recordSizeIdx] << 8) | data[recordSizeIdx + 1];
+
+        byte[] recordBytes = new byte[size];
+        System.arraycopy(data, recordStart, recordBytes, 0, size);
         return recordBytes;
     }
 }

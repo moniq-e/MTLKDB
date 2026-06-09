@@ -15,6 +15,6 @@ public class Table {
     public Row deserializeRow(byte[] data) {
         var row = new Object[columns.length];
 
-        
+        return null;
     }
 }

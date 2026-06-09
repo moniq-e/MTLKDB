@@ -24,7 +24,7 @@ public class BufferPool {
         for (int i = 0; i < NUM_PAGES; i++) pageTable[i] = -1;
     }
 
-    public byte[] getPage(int pageId) throws IOException {
+    public Page getPage(int pageId) throws IOException {
         for (int i = 0; i < NUM_PAGES; i++) {
             if (((occupiedFlags >> i) & 1) == 1 && pageTable[i] == pageId) {
                 return extractPage(i);
@@ -54,12 +54,12 @@ public class BufferPool {
         dirtyFlags |= (1 << frameId);
     }
 
-    private byte[] extractPage(int pageId) {
+    private Page extractPage(int pageId) {
         var res = new byte[PAGE_SIZE];
 
         System.arraycopy(memory, pageId * PAGE_SIZE, res, 0, PAGE_SIZE);
 
-        return res;
+        return new Page(res);
     }
 
     private void diskPageToMemory(int pageId) throws IOException {
