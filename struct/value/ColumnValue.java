@@ -2,7 +2,7 @@ package struct.value;
 
 import org.jetbrains.annotations.NotNull;
 
-import struct.Row;
+import struct.RawRow;
 
 public class ColumnValue extends LiteralValue {
     private String columnName;
@@ -14,7 +14,7 @@ public class ColumnValue extends LiteralValue {
 
     @Override
     @NotNull
-    public LiteralValue evaluate(Row row) {
+    public LiteralValue evaluate(RawRow row) {
         return new LiteralValue(row.getValue(columnName));
     }
 

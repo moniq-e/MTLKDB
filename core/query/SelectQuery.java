@@ -4,7 +4,7 @@ import core.Storage;
 import expression.And;
 import expression.Expression;
 import expression.Or;
-import struct.Row;
+import struct.RawRow;
 
 public class SelectQuery {
     private Storage storage;
@@ -49,7 +49,7 @@ public class SelectQuery {
         return this;
     }
 
-    public Row[] execute() {
+    public RawRow[] execute() {
         if (tableName == null || tableName.isBlank()) {
             throw new IllegalStateException("Table name not specified. Use from(tableName).");
         }

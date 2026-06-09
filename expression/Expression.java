@@ -1,8 +1,8 @@
 package expression;
 
-import struct.Row;
+import struct.RawRow;
 
 @FunctionalInterface
 public interface Expression {
-    boolean evaluate(Row row);
+    boolean evaluate(RawRow row);
 }

@@ -11,47 +11,47 @@ import expression.Equals;
 import struct.ColumnDefinition;
 import struct.ColumnType;
 import struct.ConstraintMap;
-import struct.Row;
+import struct.RawRow;
 import struct.value.LiteralValue;
 
 public class CLITest {
     private Storage storage = new Storage() {
         @Override
-        public Row[] createTable(String tableName, ColumnDefinition[] columns) {
-            return new Row[0];
+        public RawRow[] createTable(String tableName, ColumnDefinition[] columns) {
+            return new RawRow[0];
         }
 
         @Override
-        public Row[] createDatabase(String dbName) {
-            return new Row[0];
+        public RawRow[] createDatabase(String dbName) {
+            return new RawRow[0];
         }
 
         @Override
-        public Row[] insertRow(String tableName, Row row) {
-            return new Row[] { row };
+        public RawRow[] insertRow(String tableName, RawRow row) {
+            return new RawRow[] { row };
         }
 
         @Override
-        public Row[] insertRows(String tableName, Row[] rows) {
-            return new Row[0];
+        public RawRow[] insertRows(String tableName, RawRow[] rows) {
+            return new RawRow[0];
         }
 
         @Override
-        public Row[] deleteRow(String tableName, Object primaryKey) {
-            return new Row[0];
+        public RawRow[] deleteRow(String tableName, Object primaryKey) {
+            return new RawRow[0];
         }
 
         @Override
-        public Row[] deleteRows(String tableName, Object[] primaryKeys) {
-            return new Row[0];
+        public RawRow[] deleteRows(String tableName, Object[] primaryKeys) {
+            return new RawRow[0];
         }
 
         @Override
-        public Row[] select(String tableName, String[] columns, expression.Expression expression) {
-            return new Row[0];
+        public RawRow[] select(String tableName, String[] columns, expression.Expression expression) {
+            return new RawRow[0];
         }
     };
-    private Row[] emptyArray = new Row[0];
+    private RawRow[] emptyArray = new RawRow[0];
 
     @Test
     public void testInsert() throws InvalidSyntaxException {

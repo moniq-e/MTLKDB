@@ -2,21 +2,21 @@ package core;
 
 import expression.Expression;
 import struct.ColumnDefinition;
-import struct.Row;
+import struct.RawRow;
 
 public interface Storage {
 
-    public Row[] createTable(String tableName, ColumnDefinition[] columns);
+    public RawRow[] createTable(String tableName, ColumnDefinition[] columns);
 
-    public Row[] createDatabase(String dbName);
+    public RawRow[] createDatabase(String dbName);
 
-    public Row[] insertRow(String tableName, Row row);
+    public RawRow[] insertRow(String tableName, RawRow row);
 
-    public Row[] insertRows(String tableName, Row[] rows);
+    public RawRow[] insertRows(String tableName, RawRow[] rows);
 
-    public Row[] deleteRow(String tableName, Object primaryKey);
+    public RawRow[] deleteRow(String tableName, Object primaryKey);
 
-    public Row[] deleteRows(String tableName, Object[] primaryKey);
+    public RawRow[] deleteRows(String tableName, Object[] primaryKey);
 
-    public Row[] select(String tableName, String[] columns, Expression expression);
+    public RawRow[] select(String tableName, String[] columns, Expression expression);
 }

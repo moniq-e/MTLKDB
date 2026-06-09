@@ -6,7 +6,7 @@ import core.Storage;
 import core.persistence.DiskManager;
 import expression.Expression;
 import struct.ColumnDefinition;
-import struct.Row;
+import struct.RawRow;
 
 public class StorageImpl implements Storage {
     private DiskManager db;
@@ -16,44 +16,44 @@ public class StorageImpl implements Storage {
     }
 
     @Override
-    public Row[] createTable(String tableName, ColumnDefinition[] columns) {
+    public RawRow[] createTable(String tableName, ColumnDefinition[] columns) {
         if (db.createTable(tableName, columns)) {
-            return new Row[1];
-        } else return new Row[0];
+            return new RawRow[1];
+        } else return new RawRow[0];
     }
 
     @Override
-    public Row[] createDatabase(String dbName) {
+    public RawRow[] createDatabase(String dbName) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'createDatabase'");
     }
 
     @Override
-    public Row[] insertRow(String tableName, Row row) {
+    public RawRow[] insertRow(String tableName, RawRow row) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'insertRow'");
     }
 
     @Override
-    public Row[] insertRows(String tableName, Row[] rows) {
+    public RawRow[] insertRows(String tableName, RawRow[] rows) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'insertRows'");
     }
 
     @Override
-    public Row[] deleteRow(String tableName, Object primaryKey) {
+    public RawRow[] deleteRow(String tableName, Object primaryKey) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteRow'");
     }
 
     @Override
-    public Row[] deleteRows(String tableName, Object[] primaryKey) {
+    public RawRow[] deleteRows(String tableName, Object[] primaryKey) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteRows'");
     }
 
     @Override
-    public Row[] select(String tableName, String[] columns, Expression expression) {
+    public RawRow[] select(String tableName, String[] columns, Expression expression) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'select'");
     }

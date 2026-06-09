@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.NotNull;
 
-import struct.Row;
+import struct.RawRow;
 import struct.util.RawEncoder;
 
 public class LiteralValue implements Comparable<LiteralValue> {
@@ -19,7 +19,7 @@ public class LiteralValue implements Comparable<LiteralValue> {
     }
 
     @NotNull
-    public LiteralValue evaluate(Row row) {
+    public LiteralValue evaluate(RawRow row) {
         return this;
     }
 

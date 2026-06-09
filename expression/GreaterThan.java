@@ -1,12 +1,12 @@
 package expression;
 
-import struct.Row;
+import struct.RawRow;
 import struct.value.LiteralValue;
 
 public record GreaterThan(LiteralValue a, LiteralValue b) implements Expression {
 
     @Override
-    public boolean evaluate(Row row) {
+    public boolean evaluate(RawRow row) {
         var aValue = a.evaluate(row);
         var bValue = b.evaluate(row);
 

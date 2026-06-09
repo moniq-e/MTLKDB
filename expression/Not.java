@@ -1,11 +1,11 @@
 package expression;
 
-import struct.Row;
+import struct.RawRow;
 
 public record Not(Expression expression) implements Expression {
 
     @Override
-    public boolean evaluate(Row row) {
+    public boolean evaluate(RawRow row) {
         return !expression.evaluate(row);
     }
 }

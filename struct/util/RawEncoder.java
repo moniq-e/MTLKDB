@@ -61,6 +61,17 @@ public class RawEncoder {
         return bytes;
     }
 
+    public static int decodeInt(byte[] bytes) {
+        int value = 0;
+
+        for (int i = 0; i < 4; i++) {
+            value |= (bytes[i] & 0xFF) << (24 - 8 * i);
+        }
+
+        value ^= 0x80000000;
+        return value;
+    }
+
     public static byte[] encodeLong(long value) {
         var bytes = new byte[8];
         value ^= 0x8000000000000000L;
@@ -74,6 +85,17 @@ public class RawEncoder {
         bytes[6] = (byte) (value >>> 8);
         bytes[7] = (byte) value;
         return bytes;
+    }
+
+    public static long decodeLong(byte[] bytes) {
+        int value = 0;
+
+        for (int i = 0; i < 8; i++) {
+            value |= (bytes[i] & 0xFF) << (56 - 8 * i);
+        }
+
+        value ^= 0x8000000000000000L;
+        return value;
     }
 
     public static byte[] encodeFloat(float value) {

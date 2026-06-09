@@ -6,7 +6,7 @@ import core.Storage;
 import struct.ColumnDefinition;
 import struct.ColumnType;
 import struct.ConstraintMap;
-import struct.Row;
+import struct.RawRow;
 
 public class CreateTableQuery {
     private Storage storage;
@@ -32,7 +32,7 @@ public class CreateTableQuery {
         return column(name, type, (ConstraintMap) null);
     }
 
-    public Row[] execute() {
+    public RawRow[] execute() {
         if (tableName == null || tableName.isBlank()) {
             throw new IllegalStateException("Table name not specified. Use table(tableName).");
         }

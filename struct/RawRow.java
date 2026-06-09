@@ -2,11 +2,11 @@ package struct;
 
 import org.jetbrains.annotations.Nullable;
 
-public class Row {
+public class RawRow {
     String[] columns;
     byte[][] values;
 
-    public Row(String[] columns, byte[][] values) {
+    public RawRow(String[] columns, byte[][] values) {
         this.columns = columns;
         this.values = values;
     }

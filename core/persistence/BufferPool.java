@@ -9,7 +9,7 @@ public class BufferPool {
     private static final int NUM_PAGES = 16;
 
     private byte[] memory; 
-    private int[] pageTable; 
+    private int[] frameToPageId; 
 
     private short dirtyFlags;
     private short occupiedFlags;
@@ -17,20 +17,20 @@ public class BufferPool {
     private FrameUsage frameMan;
     private DiskManager diskManager;
 
-    public BufferPool(DiskManager diskManager) {
-        this.diskManager = diskManager;
+    public BufferPool(String fileName) throws IOException {
+        this.diskManager = new DiskManager(fileName);
         this.frameMan = new FrameUsage(NUM_PAGES);
         this.memory = new byte[PAGE_SIZE * NUM_PAGES];
-        this.pageTable = new int[NUM_PAGES];
+        this.frameToPageId = new int[NUM_PAGES];
         this.dirtyFlags = 0;
         this.occupiedFlags = 0;
         
-        for (int i = 0; i < NUM_PAGES; i++) pageTable[i] = -1;
+        for (int i = 0; i < NUM_PAGES; i++) frameToPageId[i] = -1;
     }
 
     public Page getPage(int pageId) throws IOException {
         for (int i = 0; i < NUM_PAGES; i++) {
-            if (((occupiedFlags >> i) & 1) == 1 && pageTable[i] == pageId) {
+            if (((occupiedFlags >> i) & 1) == 1 && frameToPageId[i] == pageId) {
                 frameMan.update(i);
                 return extractPage(i);
             }
@@ -46,7 +46,7 @@ public class BufferPool {
 
         if (freeFrame != -1) {
             occupiedFlags |= (1 << freeFrame);
-            pageTable[freeFrame] = pageId;
+            frameToPageId[freeFrame] = pageId;
 
             diskPageToMemory(pageId);
             frameMan.update(freeFrame);
@@ -54,12 +54,15 @@ public class BufferPool {
         }
         
         var lruFrame = frameMan.getLRU();
-        var lruPageId = pageTable[lruFrame];
+        var lruPageId = frameToPageId[lruFrame];
+
         if (((dirtyFlags >> lruFrame) & 1) == 1) {
             diskManager.writePage(lruPageId, extractRawPage(lruPageId));
-            //dirtyFlags |= (1 << lruFrame);
+
+            dirtyFlags ^= (1 << lruFrame);
+            occupiedFlags ^= (1 << lruFrame);
         }
-        
+
         return getPage(pageId);
     }
     

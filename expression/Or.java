@@ -1,11 +1,11 @@
 package expression;
 
-import struct.Row;
+import struct.RawRow;
 
 public record Or(Expression left, Expression right) implements Expression {
 
     @Override
-    public boolean evaluate(Row row) {
+    public boolean evaluate(RawRow row) {
         return left.evaluate(row) || right.evaluate(row);
     }
 }

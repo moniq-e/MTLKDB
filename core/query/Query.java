@@ -1,6 +1,6 @@
 package core.query;
 
-import struct.Row;
+import struct.RawRow;
 
 public interface Query {
 
@@ -14,5 +14,5 @@ public interface Query {
 
     Query or(String column, String op, Object value);
 
-    Row[] execute();
+    RawRow[] execute();
 }

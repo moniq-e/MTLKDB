@@ -3,7 +3,7 @@ package core.query;
 import java.util.ArrayList;
 
 import core.Storage;
-import struct.Row;
+import struct.RawRow;
 import struct.util.ArrayAsCollection;
 import struct.util.RawEncoder;
 
@@ -38,7 +38,7 @@ public class InsertQuery {
         return this;
     }
 
-    public Row[] execute() {
+    public RawRow[] execute() {
         if (tableName == null || tableName.isBlank()) {
             throw new IllegalStateException("Table name not specified. Use into(tableName).");
         }
@@ -48,12 +48,12 @@ public class InsertQuery {
         }
 
         if (values.size() == 1) {
-            Row row = new Row(columns, RawEncoder.encodeValues(values.get(0)));
+            RawRow row = new RawRow(columns, RawEncoder.encodeValues(values.get(0)));
             return storage.insertRow(tableName, row);
         } else {
             var rows = values.stream()
-                .map(vals -> new Row(columns, RawEncoder.encodeValues(vals)))
-                .toArray(Row[]::new);
+                .map(vals -> new RawRow(columns, RawEncoder.encodeValues(vals)))
+                .toArray(RawRow[]::new);
             return storage.insertRows(tableName, rows);
         }
     }
