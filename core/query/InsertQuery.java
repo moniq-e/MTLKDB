@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import core.Storage;
 import struct.RawRow;
 import struct.util.ArrayAsCollection;
-import struct.util.RawEncoder;
+import struct.util.RawRowEncoder;
 
 public class InsertQuery {
     private Storage storage;
@@ -48,11 +48,11 @@ public class InsertQuery {
         }
 
         if (values.size() == 1) {
-            RawRow row = new RawRow(columns, RawEncoder.encodeValues(values.get(0)));
+            RawRow row = new RawRow(columns, RawRowEncoder.encodeValues(values.get(0)));
             return storage.insertRow(tableName, row);
         } else {
             var rows = values.stream()
-                .map(vals -> new RawRow(columns, RawEncoder.encodeValues(vals)))
+                .map(vals -> new RawRow(columns, RawRowEncoder.encodeValues(vals)))
                 .toArray(RawRow[]::new);
             return storage.insertRows(tableName, rows);
         }

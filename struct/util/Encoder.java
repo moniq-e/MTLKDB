@@ -1,53 +1,26 @@
 package struct.util;
 
-import org.jetbrains.annotations.Nullable;
+public class Encoder {
 
-public class RawEncoder {
+    private Encoder() {}
 
-    private RawEncoder() {}
-
-    public static byte[][] encodeValues(String[] values) {
-        var res = new byte[values.length][];
-        for (int i = 0; i < values.length; i++) {
-            res[i] = encodeString(values[i]);
-        }
-        return res;
-    }
-
-    @Nullable
     public static byte[] encodeString(String value) {
-        if (value == null) return null;
-        try {
-            if (!value.contains(".")) {
-                try {
-                    return encodeInt(Integer.parseInt(value));
-                } catch (NumberFormatException e) {
-                    return encodeLong(Long.parseLong(value));
-                }
-            } else {
-                try {
-                    return encodeFloat(Float.parseFloat(value));
-                } catch (NumberFormatException e) {
-                    return encodeDouble(Double.parseDouble(value));
-                }
-            }
-        } catch (Exception e) {
-            return encodeStringInternal(value);
-        }
-    }
-
-    private static byte[] encodeStringInternal(String value) {
         var size = value.length();
         var bytes = new byte[4 + size];
 
-        size ^= 0x80000000; 
-        bytes[0] = (byte) (size >>> 24);
-        bytes[1] = (byte) (size >>> 16);
-        bytes[2] = (byte) (size >>> 8);
-        bytes[3] = (byte) size;
-
+        System.arraycopy(encodeInt(size), 0, bytes, 0, 4);
         System.arraycopy(value.getBytes(), 0, bytes, 4, size);
         return bytes;
+    }
+
+    public static short decodeShort(byte[] bytes) {
+        short value = 0;
+
+        value |= (bytes[0] & 0xFF) << 8;
+        value |= (bytes[1] & 0xFF);
+
+        value ^= 0x8000;
+        return value;
     }
 
     public static byte[] encodeInt(int value) {

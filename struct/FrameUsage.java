@@ -1,30 +1,28 @@
 package struct;
 
-import java.util.HashMap;
-
 public class FrameUsage {
-    private HashMap<Integer, Node> tracker;
+    private Node[] tracker;
     private Node first;
     private Node last;
 
     public FrameUsage(int size) {
-        tracker = new HashMap<>();
+        tracker = new Node[size];
 
         for (int i = 0; i < size; i++) {
             var node = new Node(i);
-            if (tracker.containsKey(i - 1)) {
-                var prev = tracker.get(i - 1);
+            if (i > 0) {
+                var prev = tracker[i - 1];
                 prev.next = node;
                 node.previous = prev;
             }
-            tracker.put(i, node);
+            tracker[i] = node;
         }
-        first = tracker.get(0);
-        last = tracker.get(size - 1);
+        first = tracker[0];
+        last = tracker[size - 1];
     }
 
     public void update(int slot) {
-        var node = tracker.get(slot);
+        var node = tracker[slot];
 
         if (node == last) return;
 

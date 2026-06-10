@@ -5,13 +5,13 @@ import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 import struct.RawRow;
-import struct.util.RawEncoder;
+import struct.util.RawRowEncoder;
 
 public class LiteralValue implements Comparable<LiteralValue> {
     private byte[] buffer;
 
     public LiteralValue(String value) {
-        buffer = RawEncoder.encodeString(value);
+        buffer = RawRowEncoder.encodeString(value);
     }
 
     protected LiteralValue(byte[] value) {

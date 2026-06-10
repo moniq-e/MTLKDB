@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.Test;
 
-import struct.util.RawEncoder;
+import struct.util.Encoder;
 
 public class GeneralTest {
     
@@ -15,9 +15,9 @@ public class GeneralTest {
 
     @Test
     public void testIntEncode() {
-        assertEquals(4, RawEncoder.decodeInt(RawEncoder.encodeInt(4)));
-        assertEquals(0xFF, RawEncoder.decodeInt(RawEncoder.encodeInt(0xFF)));
-        assertEquals(37898, RawEncoder.decodeInt(RawEncoder.encodeInt(37898)));
-        assertEquals(-37898, RawEncoder.decodeInt(RawEncoder.encodeInt(-37898)));
+        assertEquals(4, Encoder.decodeInt(Encoder.encodeInt(4)));
+        assertEquals(0xFF, Encoder.decodeInt(Encoder.encodeInt(0xFF)));
+        assertEquals(37898, Encoder.decodeInt(Encoder.encodeInt(37898)));
+        assertEquals(-37898, Encoder.decodeInt(Encoder.encodeInt(-37898)));
     }
 }

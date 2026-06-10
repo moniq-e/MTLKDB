@@ -1,6 +1,10 @@
 package core.persistence;
 
-// 1 byte - headerSize | headerSize bytes - header (slots de 2 bytes para cada row)
+import java.util.Arrays;
+
+import struct.util.Constants;
+import struct.util.Encoder;
+
 public class Page {
     private final byte[] data;
     private short headerSize;
@@ -11,16 +15,16 @@ public class Page {
         this.headerSize = data[0];
         this.header = new byte[headerSize];
 
-        System.arraycopy(data, 1, header, 0, headerSize);
+        System.arraycopy(data, Constants.HEADER_SIZE_BYTES, header, 0, headerSize);
     }
 
     public byte[] getRecord(int slotId) {
-        int offsetIndex = slotId * 2;
+        int offsetIndex = slotId * Constants.HEADER_SLOT_SIZE_BYTES;
 
-        int recordSizeIdx = (header[offsetIndex] << 8) | header[offsetIndex + 1];
-        int recordStart = recordSizeIdx + 2;
+        int recordSizeIdx = Encoder.decodeShort(Arrays.copyOfRange(data, offsetIndex, offsetIndex + Constants.HEADER_SLOT_SIZE_BYTES));
+        int recordStart = recordSizeIdx + Constants.RECORD_SIZE_BYTES;
 
-        int size = (data[recordSizeIdx] << 8) | data[recordSizeIdx + 1];
+        int size = Encoder.decodeInt(Arrays.copyOfRange(data, recordSizeIdx, recordSizeIdx + Constants.RECORD_SIZE_BYTES));
 
         byte[] recordBytes = new byte[size];
         System.arraycopy(data, recordStart, recordBytes, 0, size);
