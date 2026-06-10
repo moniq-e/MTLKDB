@@ -6,10 +6,30 @@ public class Encoder {
 
     public static byte[] encodeString(String value) {
         var size = value.length();
-        var bytes = new byte[4 + size];
+        var bytes = new byte[Consts.VARCHAR_SIZE_BYTES + size];
 
-        System.arraycopy(encodeInt(size), 0, bytes, 0, 4);
-        System.arraycopy(value.getBytes(), 0, bytes, 4, size);
+        System.arraycopy(encode(size, Consts.VARCHAR_SIZE_BYTES), 0, bytes, 0, Consts.VARCHAR_SIZE_BYTES);
+        System.arraycopy(value.getBytes(), 0, bytes, Consts.VARCHAR_SIZE_BYTES, size);
+        return bytes;
+    }
+
+    public static byte[] encode(int value, int byteCount) {
+        var bytes = new byte[byteCount];
+        value ^= 1 << (8 * byteCount - 1);
+
+        for (int i = byteCount - 1; i >= 0; i--) {
+            bytes[i] = (byte) value;
+            value >>>= 8;
+        }
+        return bytes;
+    }
+
+    public static byte[] encodeShort(int value) {
+        var bytes = new byte[2];
+        value ^= 0x8000; 
+
+        bytes[0] = (byte) (value >>> 8);
+        bytes[1] = (byte) value;
         return bytes;
     }
 

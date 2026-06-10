@@ -1,53 +1,72 @@
 package impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import core.Storage;
-import core.persistence.DiskManager;
+import core.persistence.Table;
 import expression.Expression;
 import struct.ColumnDefinition;
 import struct.RawRow;
 
 public class StorageImpl implements Storage {
-    private DiskManager db;
+    private HashMap<String, Table> tables;
+    private File root;
 
     public StorageImpl() throws IOException {
-        db = new DiskManager("default");
+        tables = new HashMap<>();
+        root = new File("./");
+
+        var existingTables = Arrays
+            .stream(root.list((d, fn) -> fn.endsWith(".dat")))
+            .map(s -> s.split(".dat")[0])
+        .toArray(String[]::new);
+
+        for (var tableName : existingTables) {
+            tables.put(tableName, new Table(tableName, null));
+        }
     }
 
     @Override
-    public RawRow[] createTable(String tableName, ColumnDefinition[] columns) {
-        if (db.createTable(tableName, columns)) {
-            return new RawRow[1];
-        } else return new RawRow[0];
+    public boolean createTable(String tableName, ColumnDefinition[] columns) {
+        if (!tables.containsKey(tableName)) {
+            try {
+                tables.put(tableName, new Table(tableName, columns));
+            } catch (IOException e) {
+                return false;
+            }
+            return true;
+        } else return false;
     }
 
     @Override
-    public RawRow[] createDatabase(String dbName) {
+    public boolean createDatabase(String dbName) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'createDatabase'");
     }
 
     @Override
-    public RawRow[] insertRow(String tableName, RawRow row) {
+    public int insertRow(String tableName, RawRow row) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'insertRow'");
     }
 
     @Override
-    public RawRow[] insertRows(String tableName, RawRow[] rows) {
+    public int insertRows(String tableName, RawRow[] rows) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'insertRows'");
     }
 
     @Override
-    public RawRow[] deleteRow(String tableName, Object primaryKey) {
+    public int deleteRow(String tableName, Object primaryKey) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteRow'");
     }
 
     @Override
-    public RawRow[] deleteRows(String tableName, Object[] primaryKey) {
+    public int deleteRows(String tableName, Object[] primaryKey) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteRows'");
     }

@@ -38,7 +38,7 @@ public class InsertQuery {
         return this;
     }
 
-    public RawRow[] execute() {
+    public int execute() {
         if (tableName == null || tableName.isBlank()) {
             throw new IllegalStateException("Table name not specified. Use into(tableName).");
         }

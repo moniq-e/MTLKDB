@@ -1,6 +1,7 @@
 package test;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -15,47 +16,48 @@ import struct.RawRow;
 import struct.value.LiteralValue;
 
 public class CLITest {
+    private final RawRow[] emptyArray = new RawRow[0];
+
     private Storage storage = new Storage() {
         @Override
-        public RawRow[] createTable(String tableName, ColumnDefinition[] columns) {
-            return new RawRow[0];
+        public boolean createTable(String tableName, ColumnDefinition[] columns) {
+            return true;
         }
 
         @Override
-        public RawRow[] createDatabase(String dbName) {
-            return new RawRow[0];
+        public boolean createDatabase(String dbName) {
+            return true;
         }
 
         @Override
-        public RawRow[] insertRow(String tableName, RawRow row) {
-            return new RawRow[] { row };
+        public int insertRow(String tableName, RawRow row) {
+            return 1;
         }
 
         @Override
-        public RawRow[] insertRows(String tableName, RawRow[] rows) {
-            return new RawRow[0];
+        public int insertRows(String tableName, RawRow[] rows) {
+            return 1;
         }
 
         @Override
-        public RawRow[] deleteRow(String tableName, Object primaryKey) {
-            return new RawRow[0];
+        public int deleteRow(String tableName, Object primaryKey) {
+            return 1;
         }
 
         @Override
-        public RawRow[] deleteRows(String tableName, Object[] primaryKeys) {
-            return new RawRow[0];
+        public int deleteRows(String tableName, Object[] primaryKeys) {
+            return 1;
         }
 
         @Override
         public RawRow[] select(String tableName, String[] columns, expression.Expression expression) {
-            return new RawRow[0];
+            return emptyArray;
         }
     };
-    private RawRow[] emptyArray = new RawRow[0];
 
     @Test
     public void testInsert() throws InvalidSyntaxException {
-        assertArrayEquals(emptyArray, QueryBuilder.insert(storage)
+        assertEquals(1, QueryBuilder.insert(storage)
             .into("customers")
             .values("a", "b", "c")
             .values("d", "e", "f")
@@ -90,28 +92,28 @@ public class CLITest {
 
     @Test
     public void testCreateTable() throws InvalidSyntaxException {
-        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
+        assertEquals(true, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.INT)
             .column("b", ColumnType.INT)
             .column("c", ColumnType.INT)
         .execute());
 
-        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
+        assertEquals(true, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.INT)
             .column("b", ColumnType.varchar(255), ConstraintMap.PRIMARY())
             .column("c", ColumnType.INT)
         .execute());
 
-        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
+        assertEquals(true, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.varchar(11))
             .column("b", ColumnType.varchar(255))
             .column("c", ColumnType.varchar(1))
         .execute());
 
-        assertArrayEquals(emptyArray, QueryBuilder.createTable(storage)
+        assertEquals(true, QueryBuilder.createTable(storage)
             .table("customers")
             .column("a", ColumnType.varchar(11), ConstraintMap.PRIMARY())
             .column("b", ColumnType.varchar(255), ConstraintMap.DEFAULT("a"))

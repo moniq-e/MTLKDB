@@ -1,10 +1,10 @@
-package core;
+package core.persistence;
 
 import java.io.IOException;
 
-import core.persistence.BufferPool;
 import struct.ColumnDefinition;
 import struct.RawRow;
+import struct.util.Consts;
 
 public class Table {
     private String tableName;
@@ -16,10 +16,10 @@ public class Table {
         this.tableName = tableName;
         this.columns = columns;
         updateColumnsNames();
-        rows = new BufferPool(tableName);
+        rows = new BufferPool(tableName + ".dat");
     }
 
-    public RawRow deserializeRow(byte[] data) {
+    public RawRow deserializeRow(byte[] record) {
         var rowData = new byte[columns.length][];
 
         int k = 0;
@@ -27,12 +27,12 @@ public class Table {
             var colType = columns[i].columnType();
 
             if (colType.isVarchar()) {
-                var varsize = (data[k] << 8) | data[k + 1];
+                var varsize = (record[k] << 8) | record[k + 1];
 
-                System.arraycopy(data, k + 2, rowData[i], 0, varsize);
-                k += 2 + varsize;
+                System.arraycopy(record, k + Consts.VARCHAR_SIZE_BYTES, rowData[i], 0, varsize);
+                k += Consts.VARCHAR_SIZE_BYTES + varsize;
             } else {
-                System.arraycopy(data, k, rowData[i], 0, colType.getSize());
+                System.arraycopy(record, k, rowData[i], 0, colType.getSize());
                 k += colType.getSize();
             }
         }
