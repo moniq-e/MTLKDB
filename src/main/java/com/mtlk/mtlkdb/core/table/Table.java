@@ -1,8 +1,9 @@
-package com.mtlk.mtlkdb.core.persistence;
+package com.mtlk.mtlkdb.core.table;
 
 import java.io.File;
 import java.io.IOException;
 
+import com.mtlk.mtlkdb.core.persistence.BufferPool;
 import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.util.Consts;
 

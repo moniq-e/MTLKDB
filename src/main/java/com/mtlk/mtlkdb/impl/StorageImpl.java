@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import com.mtlk.mtlkdb.core.Storage;
-import com.mtlk.mtlkdb.core.persistence.Table;
+import com.mtlk.mtlkdb.core.table.Table;
 import com.mtlk.mtlkdb.expression.Expression;
 import com.mtlk.mtlkdb.struct.ColumnDefinition;
 import com.mtlk.mtlkdb.struct.RawRow;

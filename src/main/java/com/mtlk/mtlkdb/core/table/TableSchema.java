@@ -1,4 +1,4 @@
-package com.mtlk.mtlkdb.core.persistence;
+package com.mtlk.mtlkdb.core.table;
 
 import java.io.File;
 import java.io.FileReader;
