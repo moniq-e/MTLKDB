@@ -3,30 +3,27 @@ package com.mtlk.mtlkdb.core.persistence;
 import java.io.File;
 import java.io.IOException;
 
-import com.mtlk.mtlkdb.struct.ColumnDefinition;
 import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.util.Consts;
 
 public class Table {
     private String tableName;
     private File tableFolder;
-    private ColumnDefinition[] columns;
-    private String[] columnsNames;
+    private TableSchema schema;
     private BufferPool rows;
 
     public Table(String tableName, File tableFolder) throws IOException {
         this.tableName = tableName;
         this.tableFolder = tableFolder;
         readColumnDefinition();
-        updateColumnsNames();
         rows = new BufferPool(tableName + ".dat");
     }
 
     private void readColumnDefinition() throws IOException {
-        var files = tableFolder.listFiles((d, f) -> f.endsWith(".inf"));
-        if (files.length < 1) throw new IOException(tableName + " .inf file can't be found.");
+        var files = tableFolder.listFiles((d, f) -> f.endsWith(".schema"));
+        if (files.length < 1) throw new IOException(tableName + " .schema file can't be found.");
 
-        
+        schema = new TableSchema(files[0]);
     }
 
     public static String extractTableName(File folder) {
@@ -34,11 +31,11 @@ public class Table {
     }
 
     public RawRow deserializeRow(byte[] record) {
-        var rowData = new byte[columns.length][];
+        var rowData = new byte[schema.size()][];
 
         int k = 0;
-        for (int i = 0; i < columns.length; i++) {
-            var colType = columns[i].columnType();
+        for (int i = 0; i < schema.size(); i++) {
+            var colType = schema.get(i).columnType();
 
             if (colType.isVarchar()) {
                 var varsize = (record[k] << 8) | record[k + 1];
@@ -50,14 +47,6 @@ public class Table {
                 k += colType.getSize();
             }
         }
-        return new RawRow(columnsNames, rowData);
-    }
-
-    private void updateColumnsNames() {
-        columnsNames = new String[columns.length];
-
-        for (int i = 0; i < columns.length; i++) {
-            columnsNames[i] = columns[i].name();
-        }
+        return new RawRow(schema.getColumnNames(), rowData);
     }
 }

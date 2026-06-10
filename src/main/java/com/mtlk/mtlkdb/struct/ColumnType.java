@@ -20,9 +20,9 @@ public class ColumnType {
         return new ColumnType("VARCHAR", String.class, size);
     }
 
-    public static ColumnType fromString(String typeName, String size) {
+    public static ColumnType fromString(String typeName, int size) {
         if (typeName.equalsIgnoreCase("VARCHAR")) {
-            return varchar(Integer.parseInt(size));
+            return varchar(size);
         }
         return fromString(typeName);
     }
