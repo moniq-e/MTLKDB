@@ -1,15 +1,17 @@
 package com.mtlk.mtlkdb.struct.util;
 
+import com.mtlk.mtlkdb.core.persistence.page.RecordPage;
+
 public class Encoder {
 
     private Encoder() {}
 
     public static byte[] encodeString(String value) {
         var size = value.length();
-        var bytes = new byte[Consts.VARCHAR_SIZE_BYTES + size];
+        var bytes = new byte[RecordPage.VARCHAR_SIZE_BYTES + size];
 
-        System.arraycopy(encode(size, Consts.VARCHAR_SIZE_BYTES), 0, bytes, 0, Consts.VARCHAR_SIZE_BYTES);
-        System.arraycopy(value.getBytes(), 0, bytes, Consts.VARCHAR_SIZE_BYTES, size);
+        System.arraycopy(encode(size, RecordPage.VARCHAR_SIZE_BYTES), 0, bytes, 0, RecordPage.VARCHAR_SIZE_BYTES);
+        System.arraycopy(value.getBytes(), 0, bytes, RecordPage.VARCHAR_SIZE_BYTES, size);
         return bytes;
     }
 

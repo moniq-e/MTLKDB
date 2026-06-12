@@ -2,6 +2,7 @@ package com.mtlk.mtlkdb.core.persistence;
 
 import java.io.IOException;
 
+import com.mtlk.mtlkdb.core.persistence.page.RecordPage;
 import com.mtlk.mtlkdb.struct.FrameUsage;
 
 public class BufferPool {
@@ -28,7 +29,7 @@ public class BufferPool {
         for (int i = 0; i < NUM_PAGES; i++) frameToPageId[i] = -1;
     }
 
-    public Page getPage(int pageId) throws IOException {
+    public RecordPage getPage(int pageId) throws IOException {
         for (int i = 0; i < NUM_PAGES; i++) {
             if (((occupiedFlags >> i) & 1) == 1 && frameToPageId[i] == pageId) {
                 frameMan.update(i);
@@ -70,8 +71,8 @@ public class BufferPool {
         dirtyFlags |= (1 << frameId);
     }
 
-    private Page extractPage(int pageId) {
-        return new Page(extractRawPage(pageId));
+    private RecordPage extractPage(int pageId) {
+        return new RecordPage(extractRawPage(pageId));
     }
 
     private byte[] extractRawPage(int pageId) {

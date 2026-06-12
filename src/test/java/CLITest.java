@@ -1,5 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
 import com.mtlk.mtlkdb.core.Storage;
@@ -16,42 +18,51 @@ import com.mtlk.mtlkdb.struct.value.LiteralValue;
 public class CLITest {
     private final RawRow[] emptyArray = new RawRow[0];
 
-    private Storage storage = new Storage() {
-        @Override
-        public boolean createTable(String tableName, ColumnDefinition[] columns) {
-            return true;
-        }
+    private Storage storage;
 
-        @Override
-        public boolean createDatabase(String dbName) {
-            return true;
-        }
+    {
+        try {
+            storage = new Storage() {
 
-        @Override
-        public int insertRow(String tableName, RawRow row) {
-            return 1;
-        }
+                @Override
+                public boolean createTable(String tableName, ColumnDefinition[] columns) {
+                    return true;
+                }
 
-        @Override
-        public int insertRows(String tableName, RawRow[] rows) {
-            return 1;
-        }
+                @Override
+                public boolean createDatabase(String dbName) {
+                    return true;
+                }
 
-        @Override
-        public int deleteRow(String tableName, Object primaryKey) {
-            return 1;
-        }
+                @Override
+                public int insertRow(String tableName, RawRow row) {
+                    return 1;
+                }
 
-        @Override
-        public int deleteRows(String tableName, Object[] primaryKeys) {
-            return 1;
-        }
+                @Override
+                public int insertRows(String tableName, RawRow[] rows) {
+                    return 1;
+                }
 
-        @Override
-        public RawRow[] select(String tableName, String[] columns, Expression expression) {
-            return emptyArray;
+                @Override
+                public int deleteRow(String tableName, Object primaryKey) {
+                    return 1;
+                }
+
+                @Override
+                public int deleteRows(String tableName, Object[] primaryKeys) {
+                    return 1;
+                }
+
+                @Override
+                public RawRow[] select(String tableName, String[] columns, Expression expression) {
+                    return emptyArray;
+                }
+            };
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-    };
+    }
 
     @Test
     public void testInsert() throws InvalidSyntaxException {

@@ -1,11 +1,12 @@
 package com.mtlk.mtlkdb.core.table;
 
+import static com.mtlk.mtlkdb.core.persistence.page.RecordPage.VARCHAR_SIZE_BYTES;
+
 import java.io.File;
 import java.io.IOException;
 
 import com.mtlk.mtlkdb.core.persistence.BufferPool;
 import com.mtlk.mtlkdb.struct.RawRow;
-import com.mtlk.mtlkdb.struct.util.Consts;
 
 public class Table {
     private String tableName;
@@ -41,8 +42,8 @@ public class Table {
             if (colType.isVarchar()) {
                 var varsize = (record[k] << 8) | record[k + 1];
 
-                System.arraycopy(record, k + Consts.VARCHAR_SIZE_BYTES, rowData[i], 0, varsize);
-                k += Consts.VARCHAR_SIZE_BYTES + varsize;
+                System.arraycopy(record, k + VARCHAR_SIZE_BYTES, rowData[i], 0, varsize);
+                k += VARCHAR_SIZE_BYTES + varsize;
             } else {
                 System.arraycopy(record, k, rowData[i], 0, colType.getSize());
                 k += colType.getSize();

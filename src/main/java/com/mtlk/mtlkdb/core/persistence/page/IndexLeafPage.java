@@ -1,4 +1,6 @@
-package com.mtlk.mtlkdb.struct.bptree;
+package com.mtlk.mtlkdb.core.persistence.page;
+
+import static com.mtlk.mtlkdb.core.persistence.IndexManager.PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,19 +12,16 @@ import com.mtlk.mtlkdb.struct.util.ByteArray;
 import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
 public class IndexLeafPage {
-    private static final int PAGE_SIZE = 4096;
     private static final int HEADER_SIZE = 1 + 4 + 4; 
-    private static final int ENTRY_SIZE = 12; 
+    private static final int ENTRY_SIZE = 4 + 4 + 4; 
 
     public static final int MAX_KEYS = (PAGE_SIZE - HEADER_SIZE) / ENTRY_SIZE;
 
-    private int pageId;
     private int nextPageId;
     private SortedArrayList<Integer> keys;
     private ArrayList<RecordId> rids;
 
-    public IndexLeafPage(int pageId) {
-        this.pageId = pageId;
+    private IndexLeafPage() {
         this.nextPageId = -1;
         this.keys = new SortedArrayList<>();
         this.rids = new ArrayList<>();
@@ -45,7 +44,7 @@ public class IndexLeafPage {
     }
 
     @Nullable
-    public static IndexLeafPage deserialize(int pageId, byte[] pageData) {
+    public static IndexLeafPage deserialize(byte[] pageData) {
         var buffer = new ByteArray(pageData);
 
         var type = buffer.get(); // Ignora ou valida se é folha mesmo
@@ -54,7 +53,7 @@ public class IndexLeafPage {
         int keyCount = buffer.getInt();
         int nextLeaf = buffer.getInt();
 
-        var page = new IndexLeafPage(pageId);
+        var page = new IndexLeafPage();
         page.nextPageId = nextLeaf;
 
         for (int i = 0; i < keyCount; i++) {
@@ -81,9 +80,5 @@ public class IndexLeafPage {
     public void insertRecordId(int key, RecordId recordId) {
         var pos = keys.insertSorted(key);
         rids.add(pos, recordId);
-    }
-
-    public int getPageId() {
-        return pageId;
     }
 }
