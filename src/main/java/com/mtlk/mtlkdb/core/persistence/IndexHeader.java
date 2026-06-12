@@ -43,8 +43,12 @@ public class IndexHeader {
     public int getNextFreePageId() {
         return nextFreePageId;
     }
-
+    
     public void setNextFreePageId(int nextFreePageId) {
         this.nextFreePageId = nextFreePageId;
+    }
+
+    public void incNextFreePageId() {
+        nextFreePageId++;
     }
 }

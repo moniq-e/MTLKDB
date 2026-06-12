@@ -7,23 +7,21 @@ import java.util.Collections;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
 import com.mtlk.mtlkdb.struct.util.ByteArray;
-import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
-public class IndexLeafPage {
-    private static final int HEADER_SIZE = 1 + 4 + 4; 
-    private static final int ENTRY_SIZE = 4 + 4 + 4; 
+public class IndexLeafPage extends AbstractIndexPage {
+    private static final int HEADER_SIZE = 1 + 4 + 4;
+    private static final int ENTRY_SIZE = 4 + 4 + 4;
 
     public static final int MAX_KEYS = (PAGE_SIZE - HEADER_SIZE) / ENTRY_SIZE;
 
     private int nextPageId;
-    private SortedArrayList<Integer> keys;
     private ArrayList<RecordId> rids;
 
     private IndexLeafPage() {
         this.nextPageId = -1;
-        this.keys = new SortedArrayList<>();
         this.rids = new ArrayList<>();
     }
 
@@ -47,8 +45,8 @@ public class IndexLeafPage {
     public static IndexLeafPage deserialize(byte[] pageData) {
         var buffer = new ByteArray(pageData);
 
-        var type = buffer.get(); // Ignora ou valida se é folha mesmo
-        if (type != 1) return null;
+        var type = buffer.get();
+        if (type != IndexPageType.LEAF.get()) return null;
 
         int keyCount = buffer.getInt();
         int nextLeaf = buffer.getInt();
@@ -80,5 +78,31 @@ public class IndexLeafPage {
     public void insertRecordId(int key, RecordId recordId) {
         var pos = keys.insertSorted(key);
         rids.add(pos, recordId);
+    }
+
+    public IndexLeafPage createSplittedCopy() {
+        var newPageBuffer = ByteArray.allocate(PAGE_SIZE);
+
+        newPageBuffer.put(IndexPageType.LEAF.get());
+        newPageBuffer.putInt(Math.ceilDiv(keys.size(), 2));
+        newPageBuffer.putInt(nextPageId);
+
+        for (int i = keys.size() / 2; i < keys.size(); i++) {
+            newPageBuffer.putInt(keys.get(i));
+            newPageBuffer.putInt(rids.get(i).pageId());
+            newPageBuffer.putInt(rids.get(i).slotId());
+        }
+        return deserialize(newPageBuffer.toArray());
+    }
+
+    public void split(int nextPageId) {
+        this.nextPageId = nextPageId;
+        keys.subList(keys.size() / 2, keys.size()).clear();
+        rids.subList(rids.size() / 2, rids.size()).clear();
+    }
+
+    @Override
+    public boolean isFull() {
+        return keys.size() >= MAX_KEYS;
     }
 }

@@ -7,22 +7,25 @@ import java.util.Collections;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.util.ByteArray;
-import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
-public class IndexInternalPage {
-    public SortedArrayList<Integer> keys;
+public class IndexInternalPage extends AbstractIndexPage {
+    private static final int HEADER_SIZE = 1 + 4;
+    private static final int ENTRY_SIZE = 4 + 4;
+
+    public static final int MAX_KEYS = (PAGE_SIZE - HEADER_SIZE - 4) / ENTRY_SIZE;
+
     public ArrayList<Integer> childPageIds; 
 
     public IndexInternalPage() {
-        this.keys = new SortedArrayList<>();
         this.childPageIds = new ArrayList<>();
     }
-    
+
     public byte[] serialize() {
         var buffer = ByteArray.allocate(PAGE_SIZE);
         
-        buffer.put((byte) 0);
+        buffer.put(IndexPageType.INTERNAL.get());
         buffer.putInt(keys.size());
         
         buffer.putInt(childPageIds.get(0));
@@ -34,13 +37,13 @@ public class IndexInternalPage {
         
         return buffer.toArray();
     }
-    
+
     @Nullable
     public static IndexInternalPage deserialize(byte[] pageData) {
         var buffer = ByteArray.allocate(PAGE_SIZE);
         
         var type = buffer.get();
-        if (type != 0) return null;
+        if (type != IndexPageType.INTERNAL.get()) return null;
         
         int keyCount = buffer.getInt();
         var page = new IndexInternalPage();
@@ -71,5 +74,10 @@ public class IndexInternalPage {
     public void insertChildPageId(int key, int childPageId) {
         var pos = keys.insertSorted(key);
         childPageIds.add(pos + 1, childPageId);
+    }
+
+    @Override
+    public boolean isFull() {
+        return keys.size() >= MAX_KEYS;
     }
 }
