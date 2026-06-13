@@ -1,8 +1,7 @@
-package com.mtlk.mtlkdb.core.persistence;
+package com.mtlk.mtlkdb.core.persistence.record;
 
 import java.io.IOException;
 
-import com.mtlk.mtlkdb.core.persistence.page.RecordPage;
 import com.mtlk.mtlkdb.struct.FrameUsage;
 
 public class BufferPool {

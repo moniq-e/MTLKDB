@@ -1,6 +1,6 @@
 package com.mtlk.mtlkdb.struct.util;
 
-import com.mtlk.mtlkdb.core.persistence.page.RecordPage;
+import com.mtlk.mtlkdb.core.persistence.record.RecordPage;
 
 public class Encoder {
 

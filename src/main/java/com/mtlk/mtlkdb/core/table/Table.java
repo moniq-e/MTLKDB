@@ -1,11 +1,11 @@
 package com.mtlk.mtlkdb.core.table;
 
-import static com.mtlk.mtlkdb.core.persistence.page.RecordPage.VARCHAR_SIZE_BYTES;
+import static com.mtlk.mtlkdb.core.persistence.record.RecordPage.VARCHAR_SIZE_BYTES;
 
 import java.io.File;
 import java.io.IOException;
 
-import com.mtlk.mtlkdb.core.persistence.BufferPool;
+import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
 import com.mtlk.mtlkdb.struct.RawRow;
 
 public class Table {

@@ -1,6 +1,6 @@
-package com.mtlk.mtlkdb.core.persistence.page;
+package com.mtlk.mtlkdb.core.persistence.index;
 
-import static com.mtlk.mtlkdb.core.persistence.IndexManager.PAGE_SIZE;
+import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class IndexLeafPage extends AbstractIndexPage {
     public byte[] serialize() {
         var buffer = ByteArray.allocate(PAGE_SIZE);
 
-        buffer.put((byte) 1);
+        buffer.put(IndexPageType.LEAF.get());
         buffer.putInt(keys.size());
         buffer.putInt(nextPageId);
 
@@ -80,25 +80,27 @@ public class IndexLeafPage extends AbstractIndexPage {
         rids.add(pos, recordId);
     }
 
-    public IndexLeafPage createSplittedCopy() {
+    @Override
+    public AbstractIndexPage split(int newPageId) {
         var newPageBuffer = ByteArray.allocate(PAGE_SIZE);
 
+        var mid = Math.ceilDiv(keys.size(), 2);
+
         newPageBuffer.put(IndexPageType.LEAF.get());
-        newPageBuffer.putInt(Math.ceilDiv(keys.size(), 2));
+        newPageBuffer.putInt(mid);
         newPageBuffer.putInt(nextPageId);
 
-        for (int i = keys.size() / 2; i < keys.size(); i++) {
+        for (int i = mid; i < keys.size(); i++) {
             newPageBuffer.putInt(keys.get(i));
             newPageBuffer.putInt(rids.get(i).pageId());
             newPageBuffer.putInt(rids.get(i).slotId());
         }
-        return deserialize(newPageBuffer.toArray());
-    }
 
-    public void split(int nextPageId) {
-        this.nextPageId = nextPageId;
-        keys.subList(keys.size() / 2, keys.size()).clear();
-        rids.subList(rids.size() / 2, rids.size()).clear();
+        this.nextPageId = newPageId;
+        keys.subList(mid, keys.size()).clear();
+        rids.subList(mid, rids.size()).clear();
+
+        return deserialize(newPageBuffer.toArray());
     }
 
     @Override

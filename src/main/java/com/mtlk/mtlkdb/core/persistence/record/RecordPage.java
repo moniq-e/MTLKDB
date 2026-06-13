@@ -1,4 +1,4 @@
-package com.mtlk.mtlkdb.core.persistence.page;
+package com.mtlk.mtlkdb.core.persistence.record;
 
 import java.util.Arrays;
 

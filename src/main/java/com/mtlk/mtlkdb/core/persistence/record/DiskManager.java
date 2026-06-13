@@ -1,4 +1,4 @@
-package com.mtlk.mtlkdb.core.persistence;
+package com.mtlk.mtlkdb.core.persistence.record;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

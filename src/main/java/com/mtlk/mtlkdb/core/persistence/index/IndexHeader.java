@@ -1,6 +1,6 @@
-package com.mtlk.mtlkdb.core.persistence;
+package com.mtlk.mtlkdb.core.persistence.index;
 
-import static com.mtlk.mtlkdb.core.persistence.IndexManager.PAGE_SIZE;
+import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
 import com.mtlk.mtlkdb.struct.util.ByteArray;
 
