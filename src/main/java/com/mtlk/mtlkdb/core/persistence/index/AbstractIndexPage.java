@@ -10,8 +10,6 @@ public abstract class AbstractIndexPage {
     }
 
     public abstract byte[] serialize();
-    
-    public abstract boolean isFull();
 
     public abstract AbstractIndexPage split(int newPageId);
 
@@ -22,4 +20,10 @@ public abstract class AbstractIndexPage {
     public int getPromotionKey() {
         return keys.get(Math.ceilDiv(keys.size(), 2));
     }
+
+    public boolean isFull() {
+        return keys.size() >= getMaxKeys();
+    }
+
+    protected abstract int getMaxKeys();
 }

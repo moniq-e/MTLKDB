@@ -104,7 +104,7 @@ public class IndexLeafPage extends AbstractIndexPage {
     }
 
     @Override
-    public boolean isFull() {
-        return keys.size() >= MAX_KEYS;
+    protected int getMaxKeys() {
+        return MAX_KEYS;
     }
 }
