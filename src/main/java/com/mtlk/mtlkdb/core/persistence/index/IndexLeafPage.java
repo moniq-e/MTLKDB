@@ -4,12 +4,15 @@ import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.mtlk.mtlkdb.dto.RecordIdsDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
 import com.mtlk.mtlkdb.struct.util.ByteArray;
+import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
 public class IndexLeafPage extends AbstractIndexPage {
     private static final int HEADER_SIZE = 1 + 4 + 4;
@@ -20,7 +23,14 @@ public class IndexLeafPage extends AbstractIndexPage {
     private int nextPageId;
     private ArrayList<RecordId> rids;
 
+    public IndexLeafPage(int nextPageId, List<Integer> keys, List<RecordId> rids) {
+        this.nextPageId = nextPageId;
+        this.keys = new SortedArrayList<>(keys);
+        this.rids = new ArrayList<>(rids);
+    }
+
     private IndexLeafPage() {
+        super();
         this.nextPageId = -1;
         this.rids = new ArrayList<>();
     }
@@ -67,12 +77,26 @@ public class IndexLeafPage extends AbstractIndexPage {
 
     @Nullable
     public RecordId getRecordIdByKey(int key) {
-        var pos = Collections.binarySearch(keys, key);
+        var pos = getKeyPos(key);
 
         if (pos >= 0) {
             return rids.get(pos);
         }
         return null;
+    }
+
+    public RecordIdsDTO getRecordIds(int from, int to) {
+        var fromPos = getKeyPos(from);
+        var toPos = getKeyPos(to);
+
+        if (fromPos < 0) fromPos = -fromPos - 1;
+        if (toPos < 0) toPos = -toPos - 1;
+
+        return new RecordIdsDTO(Collections.unmodifiableList(rids.subList(fromPos, toPos + 1)), keys.get(toPos));
+    }
+
+    private int getKeyPos(int key) {
+        return Collections.binarySearch(keys, key);
     }
 
     public void insertRecordId(int key, RecordId recordId) {
@@ -82,25 +106,17 @@ public class IndexLeafPage extends AbstractIndexPage {
 
     @Override
     public AbstractIndexPage split(int newPageId) {
-        var newPageBuffer = ByteArray.allocate(PAGE_SIZE);
-
         var mid = Math.ceilDiv(keys.size(), 2);
 
-        newPageBuffer.put(IndexPageType.LEAF.get());
-        newPageBuffer.putInt(mid);
-        newPageBuffer.putInt(nextPageId);
+        var secondHalfKeys = keys.subList(mid, keys.size());
+        var secondHalfRids = rids.subList(mid, rids.size());
+        var newPage = new IndexLeafPage(nextPageId, secondHalfKeys, secondHalfRids);
 
-        for (int i = mid; i < keys.size(); i++) {
-            newPageBuffer.putInt(keys.get(i));
-            newPageBuffer.putInt(rids.get(i).pageId());
-            newPageBuffer.putInt(rids.get(i).slotId());
-        }
+        nextPageId = newPageId;
+        secondHalfKeys.clear();
+        secondHalfRids.clear();
 
-        this.nextPageId = newPageId;
-        keys.subList(mid, keys.size()).clear();
-        rids.subList(mid, rids.size()).clear();
-
-        return deserialize(newPageBuffer.toArray());
+        return newPage;
     }
 
     @Override

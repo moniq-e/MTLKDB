@@ -5,6 +5,7 @@ import static com.mtlk.mtlkdb.core.persistence.record.RecordPage.VARCHAR_SIZE_BY
 import java.io.File;
 import java.io.IOException;
 
+import com.mtlk.mtlkdb.core.persistence.index.IndexManager;
 import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
 import com.mtlk.mtlkdb.struct.RawRow;
 
@@ -13,12 +14,14 @@ public class Table {
     private File tableFolder;
     private TableSchema schema;
     private BufferPool rows;
+    private IndexManager indexManager;
 
     public Table(String tableName, File tableFolder) throws IOException {
         this.tableName = tableName;
         this.tableFolder = tableFolder;
         readColumnDefinition();
         rows = new BufferPool(tableName + ".dat");
+        indexManager = new IndexManager(tableName + ".idx");
     }
 
     private void readColumnDefinition() throws IOException {

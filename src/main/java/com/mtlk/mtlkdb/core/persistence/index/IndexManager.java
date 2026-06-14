@@ -1,6 +1,7 @@
 package com.mtlk.mtlkdb.core.persistence.index;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +34,27 @@ public class IndexManager {
         var leaf = IndexLeafPage.deserialize(pageData);
 
         return leaf.getRecordIdByKey(key);
+    }
+
+    public RecordId[] search(int fromKey, int toKey) throws IOException {
+        int currentPageId = header.getRootPageId();
+
+        var pageData = indexDM.readPage(currentPageId);
+
+        while (pageData[0] == IndexPageType.INTERNAL.get()) { 
+            currentPageId = findChildPageIdInInternalNode(pageData, fromKey);
+            pageData = indexDM.readPage(currentPageId);
+        }
+
+        var actual = IndexLeafPage.deserialize(pageData);
+        var biggestKey = fromKey;
+        var res = new ArrayList<RecordId>();
+        while (biggestKey < toKey) {
+            var rids = actual.getRecordIds(biggestKey, toKey);
+            res.addAll(rids.recordIds());
+            biggestKey = rids.lastKey();
+        }
+        return res.toArray(RecordId[]::new);
     }
 
     public void insert(int key, RecordId rid) throws IOException {
