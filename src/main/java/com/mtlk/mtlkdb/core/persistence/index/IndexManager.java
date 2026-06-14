@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import com.mtlk.mtlkdb.core.persistence.record.DiskManager;
+import com.mtlk.mtlkdb.dto.ImplosionDTO;
 import com.mtlk.mtlkdb.dto.SplitDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
+import com.mtlk.mtlkdb.struct.util.ByteArray;
 
 public class IndexManager {
     public static final int PAGE_SIZE = 4096;
@@ -74,6 +76,55 @@ public class IndexManager {
         }
 
         indexDM.writePage(0, header.serialize());
+    }
+
+    public void remove(int key) throws IOException {
+        int rootPageId = header.getRootPageId();
+
+        removeAndImplodes(rootPageId, key);
+    }
+
+    private ImplosionDTO removeAndImplodes(int pageId, int key) throws IOException {
+        var pageData = indexDM.readPage(pageId);
+
+        if (pageData[0] == IndexPageType.LEAF.get()) {
+            var leaf = IndexLeafPage.deserialize(pageData);
+            leaf.remove(key);
+
+            if (leaf.isEmpty()) {
+                indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
+                return new ImplosionDTO(leaf.getNextPageId(), true);
+            }
+
+            indexDM.writePage(pageId, leaf.serialize());
+            return null;
+        }
+
+        var internal = IndexInternalPage.deserialize(pageData);
+        int childPageId = internal.getChildPageId(key);
+
+        var dto = removeAndImplodes(childPageId, key);
+
+        //TODO
+        if (dto != null) {
+            if (dto.isLeaf()) {
+                var bLeafIndex = internal.getChildPageId(key - 1);
+                var bLeaf = IndexLeafPage.deserialize(indexDM.readPage(bLeafIndex));
+
+                bLeaf.setNextPageId(dto.nextPageId());
+                indexDM.writePage(bLeafIndex, bLeaf.serialize());
+            }
+
+            internal.removeChildPageId(key);
+
+            if (internal.isEmpty()) {
+                indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
+                return new ImplosionDTO(-1, false);
+            }
+
+            indexDM.writePage(pageId, internal.serialize());
+        }
+        return null;
     }
 
     @Nullable

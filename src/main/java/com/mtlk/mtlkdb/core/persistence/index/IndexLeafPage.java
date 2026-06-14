@@ -77,7 +77,7 @@ public class IndexLeafPage extends AbstractIndexPage {
 
     @Nullable
     public RecordId getRecordIdByKey(int key) {
-        var pos = getKeyPos(key);
+        var pos = getKeyIndex(key);
 
         if (pos >= 0) {
             return rids.get(pos);
@@ -86,17 +86,13 @@ public class IndexLeafPage extends AbstractIndexPage {
     }
 
     public RecordIdsDTO getRecordIds(int from, int to) {
-        var fromPos = getKeyPos(from);
-        var toPos = getKeyPos(to);
+        var fromPos = getKeyIndex(from);
+        var toPos = getKeyIndex(to);
 
         if (fromPos < 0) fromPos = -fromPos - 1;
         if (toPos < 0) toPos = -toPos - 1;
 
         return new RecordIdsDTO(Collections.unmodifiableList(rids.subList(fromPos, toPos + 1)), keys.get(toPos));
-    }
-
-    private int getKeyPos(int key) {
-        return Collections.binarySearch(keys, key);
     }
 
     public void insert(int key, RecordId recordId) {
@@ -105,10 +101,11 @@ public class IndexLeafPage extends AbstractIndexPage {
     }
 
     public boolean remove(int key) {
-        var pos = getKeyPos(key);
+        var pos = getKeyIndex(key);
         if (pos >= 0) {
             keys.remove(pos);
             rids.remove(pos);
+            return true;
         }
         return false;
     }
@@ -144,5 +141,13 @@ public class IndexLeafPage extends AbstractIndexPage {
                 rids.equals(oleaf.rids);
         }
         return false;
+    }
+
+    public int getNextPageId() {
+        return nextPageId;
+    }
+
+    public void setNextPageId(int nextPageId) {
+        this.nextPageId = nextPageId;
     }
 }

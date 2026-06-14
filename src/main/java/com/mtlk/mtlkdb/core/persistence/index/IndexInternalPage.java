@@ -3,7 +3,6 @@ package com.mtlk.mtlkdb.core.persistence.index;
 import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -60,19 +59,29 @@ public class IndexInternalPage extends AbstractIndexPage {
     }
 
     public int getChildPageId(int key) {
-        var index = Collections.binarySearch(keys, key);
+        var index = getKeyIndex(key);
 
         if (index >= 0) {
             return childPageIds.get(index + 1);
         }
 
-        var pos = -index - 1;
-        return childPageIds.get(pos);
+        index = -index - 1;
+        return childPageIds.get(index);
     }
 
     public void insertChildPageId(int key, int childPageId) {
         var pos = keys.insertSorted(key);
         childPageIds.add(pos + 1, childPageId);
+    }
+
+    public boolean removeChildPageId(int key) {
+        var pos = getKeyIndex(key);
+        if (pos >= 0) {
+            keys.remove(pos);
+            childPageIds.remove(pos + 1);
+            return true;
+        }
+        return false;
     }
 
     @Override
