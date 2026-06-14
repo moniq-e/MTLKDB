@@ -82,7 +82,7 @@ public class IndexManager {
 
         if (pageData[0] == IndexPageType.LEAF.get()) {
             var leaf = IndexLeafPage.deserialize(pageData);
-            leaf.insertRecordId(key, rid);
+            leaf.insert(key, rid);
 
             if (leaf.isFull()) {
                 return splitAndSave(leaf, pageId);

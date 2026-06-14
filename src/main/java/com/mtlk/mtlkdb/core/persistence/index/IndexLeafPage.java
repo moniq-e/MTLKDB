@@ -99,9 +99,18 @@ public class IndexLeafPage extends AbstractIndexPage {
         return Collections.binarySearch(keys, key);
     }
 
-    public void insertRecordId(int key, RecordId recordId) {
+    public void insert(int key, RecordId recordId) {
         var pos = keys.insertSorted(key);
         rids.add(pos, recordId);
+    }
+
+    public boolean remove(int key) {
+        var pos = getKeyPos(key);
+        if (pos >= 0) {
+            keys.remove(pos);
+            rids.remove(pos);
+        }
+        return false;
     }
 
     @Override
@@ -122,5 +131,18 @@ public class IndexLeafPage extends AbstractIndexPage {
     @Override
     protected int getMaxKeys() {
         return MAX_KEYS;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+
+        if (obj instanceof IndexLeafPage) {
+            var oleaf = (IndexLeafPage) obj;
+            return nextPageId == oleaf.nextPageId && 
+                keys.equals(oleaf.keys) && 
+                rids.equals(oleaf.rids);
+        }
+        return false;
     }
 }

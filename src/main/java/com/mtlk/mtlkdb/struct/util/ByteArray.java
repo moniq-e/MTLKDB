@@ -47,7 +47,9 @@ public class ByteArray {
     public int getInt() {
         if (!isOpen) throw new IllegalStateException("Cannot operate under closed ByteArray.");
 
-        return Encoder.decodeInt(Arrays.copyOfRange(byteArr, idx++, 4));
+        var res = Encoder.decodeInt(Arrays.copyOfRange(byteArr, idx, idx + 4));
+        idx += 4;
+        return res;
     }
 
     public byte get(int index) {
@@ -55,7 +57,7 @@ public class ByteArray {
     }
 
     public int getInt(int index) {
-        return Encoder.decodeInt(Arrays.copyOfRange(byteArr, index, 4));
+        return Encoder.decodeInt(Arrays.copyOfRange(byteArr, index, index + 4));
     }
 
     public byte[] get(int index, int length) {
