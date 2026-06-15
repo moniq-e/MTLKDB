@@ -85,7 +85,7 @@ public class IndexInternalPage extends AbstractIndexPage {
     }
 
     @Override
-    public AbstractIndexPage split(int newPageId) {
+    public AbstractIndexPage split(int _thisPageId, int _newPageId) {
         var newPageBuffer = ByteArray.allocate(PAGE_SIZE);
 
         var mid = Math.ceilDiv(keys.size(), 2);

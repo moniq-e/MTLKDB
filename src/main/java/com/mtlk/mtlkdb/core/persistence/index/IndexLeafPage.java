@@ -15,16 +15,18 @@ import com.mtlk.mtlkdb.struct.util.ByteArray;
 import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
 public class IndexLeafPage extends AbstractIndexPage {
-    private static final int HEADER_SIZE = 1 + 4 + 4;
+    private static final int HEADER_SIZE = 1 + 4 + 4 + 4;
     private static final int ENTRY_SIZE = 4 + 4 + 4;
 
     public static final int MAX_KEYS = (PAGE_SIZE - HEADER_SIZE) / ENTRY_SIZE;
 
     private int nextPageId;
+    private int previousPageId;
     private ArrayList<RecordId> rids;
 
-    public IndexLeafPage(int nextPageId, List<Integer> keys, List<RecordId> rids) {
+    public IndexLeafPage(int previousPageId, int nextPageId, List<Integer> keys, List<RecordId> rids) {
         this.nextPageId = nextPageId;
+        this.previousPageId = previousPageId;
         this.keys = new SortedArrayList<>(keys);
         this.rids = new ArrayList<>(rids);
     }
@@ -32,6 +34,7 @@ public class IndexLeafPage extends AbstractIndexPage {
     private IndexLeafPage() {
         super();
         this.nextPageId = -1;
+        this.previousPageId = -1;
         this.rids = new ArrayList<>();
     }
 
@@ -41,6 +44,7 @@ public class IndexLeafPage extends AbstractIndexPage {
         buffer.put(IndexPageType.LEAF.get());
         buffer.putInt(keys.size());
         buffer.putInt(nextPageId);
+        buffer.putInt(previousPageId);
 
         for (int i = 0; i < keys.size(); i++) {
             buffer.putInt(keys.get(i));
@@ -60,9 +64,11 @@ public class IndexLeafPage extends AbstractIndexPage {
 
         int keyCount = buffer.getInt();
         int nextLeaf = buffer.getInt();
+        int previousLeaf = buffer.getInt();
 
         var page = new IndexLeafPage();
         page.nextPageId = nextLeaf;
+        page.previousPageId = previousLeaf;
 
         for (int i = 0; i < keyCount; i++) {
             int key = buffer.getInt();
@@ -111,12 +117,12 @@ public class IndexLeafPage extends AbstractIndexPage {
     }
 
     @Override
-    public AbstractIndexPage split(int newPageId) {
+    public AbstractIndexPage split(int thisPageId, int newPageId) {
         var mid = Math.ceilDiv(keys.size(), 2);
 
         var secondHalfKeys = keys.subList(mid, keys.size());
         var secondHalfRids = rids.subList(mid, rids.size());
-        var newPage = new IndexLeafPage(nextPageId, secondHalfKeys, secondHalfRids);
+        var newPage = new IndexLeafPage(thisPageId, nextPageId, secondHalfKeys, secondHalfRids);
 
         nextPageId = newPageId;
         secondHalfKeys.clear();
@@ -137,6 +143,7 @@ public class IndexLeafPage extends AbstractIndexPage {
         if (obj instanceof IndexLeafPage) {
             var oleaf = (IndexLeafPage) obj;
             return nextPageId == oleaf.nextPageId && 
+                previousPageId == oleaf.previousPageId && 
                 keys.equals(oleaf.keys) && 
                 rids.equals(oleaf.rids);
         }
@@ -149,5 +156,13 @@ public class IndexLeafPage extends AbstractIndexPage {
 
     public void setNextPageId(int nextPageId) {
         this.nextPageId = nextPageId;
+    }
+
+    public int getPreviousPageId() {
+        return previousPageId;
+    }
+
+    public void setPreviousPageId(int previousPageId) {
+        this.previousPageId = previousPageId;
     }
 }

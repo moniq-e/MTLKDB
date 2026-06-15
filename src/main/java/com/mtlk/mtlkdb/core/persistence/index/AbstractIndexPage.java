@@ -13,7 +13,7 @@ public abstract class AbstractIndexPage {
 
     public abstract byte[] serialize();
 
-    public abstract AbstractIndexPage split(int newPageId);
+    public abstract AbstractIndexPage split(int thisPageId, int newPageId);
 
     public int getFirstKey() {
         return keys.getFirst();

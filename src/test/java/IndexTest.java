@@ -17,8 +17,8 @@ public class IndexTest {
 
     @BeforeEach
     public void init() {
-        leaf = new IndexLeafPage(-1, List.of(1, 2, 3, 4, 5, 6), sequentialRIDs(1, 6));
-        leaf2 = new IndexLeafPage(-1, List.of(1, 2, 3, 4, 5, 6, 7), sequentialRIDs(1, 7));
+        leaf = new IndexLeafPage(-1, -1, List.of(1, 2, 3, 4, 5, 6), sequentialRIDs(1, 6));
+        leaf2 = new IndexLeafPage(-1, -1, List.of(1, 2, 3, 4, 5, 6, 7), sequentialRIDs(1, 7));
     }
 
     @Test
@@ -68,14 +68,14 @@ public class IndexTest {
         var pk = leaf.getPromotionKey();
         var pk2 = leaf2.getPromotionKey();
 
-        var splitted = leaf.split(0);
-        var splitted2 = leaf2.split(0);
+        var splitted = leaf.split(0, 1);
+        var splitted2 = leaf2.split(0, 1);
 
-        assertEquals(leaf, new IndexLeafPage(0, List.of(1, 2, 3), sequentialRIDs(1, 3)));
-        assertEquals(splitted, new IndexLeafPage(-1, List.of(4, 5, 6), sequentialRIDs(4, 6)));
+        assertEquals(leaf, new IndexLeafPage(-1, 1, List.of(1, 2, 3), sequentialRIDs(1, 3)));
+        assertEquals(splitted, new IndexLeafPage(0, -1, List.of(4, 5, 6), sequentialRIDs(4, 6)));
 
-        assertEquals(leaf2, new IndexLeafPage(0, List.of(1, 2, 3, 4), sequentialRIDs(1, 4)));
-        assertEquals(splitted2, new IndexLeafPage(-1, List.of(5, 6, 7), sequentialRIDs(5, 7)));
+        assertEquals(leaf2, new IndexLeafPage(-1, 1, List.of(1, 2, 3, 4), sequentialRIDs(1, 4)));
+        assertEquals(splitted2, new IndexLeafPage(0, -1, List.of(5, 6, 7), sequentialRIDs(5, 7)));
 
         assertEquals(pk, splitted.getFirstKey());
         assertEquals(pk2, splitted2.getFirstKey());

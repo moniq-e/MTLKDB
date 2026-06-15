@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import com.mtlk.mtlkdb.core.persistence.record.DiskManager;
-import com.mtlk.mtlkdb.dto.ImplosionDTO;
 import com.mtlk.mtlkdb.dto.SplitDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
@@ -84,7 +83,7 @@ public class IndexManager {
         removeAndImplodes(rootPageId, key);
     }
 
-    private ImplosionDTO removeAndImplodes(int pageId, int key) throws IOException {
+    private boolean removeAndImplodes(int pageId, int key) throws IOException {
         var pageData = indexDM.readPage(pageId);
 
         if (pageData[0] == IndexPageType.LEAF.get()) {
@@ -92,39 +91,37 @@ public class IndexManager {
             leaf.remove(key);
 
             if (leaf.isEmpty()) {
+                var prevLeaf = IndexLeafPage.deserialize(indexDM.readPage(leaf.getPreviousPageId()));
+                var nextLeaf = IndexLeafPage.deserialize(indexDM.readPage(leaf.getNextPageId()));
+
+                prevLeaf.setNextPageId(leaf.getNextPageId());
+                nextLeaf.setPreviousPageId(leaf.getPreviousPageId());
+
                 indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
-                return new ImplosionDTO(leaf.getNextPageId(), true);
+                indexDM.writePage(leaf.getNextPageId(), nextLeaf.serialize());
+                indexDM.writePage(leaf.getPreviousPageId(), prevLeaf.serialize());
+                return true;
             }
 
             indexDM.writePage(pageId, leaf.serialize());
-            return null;
+            return false;
         }
 
         var internal = IndexInternalPage.deserialize(pageData);
-        int childPageId = internal.getChildPageId(key);
+        var childPageId = internal.getChildPageId(key);
 
-        var dto = removeAndImplodes(childPageId, key);
+        var childIsEmpty = removeAndImplodes(childPageId, key);
 
-        //TODO
-        if (dto != null) {
-            if (dto.isLeaf()) {
-                var bLeafIndex = internal.getChildPageId(key - 1);
-                var bLeaf = IndexLeafPage.deserialize(indexDM.readPage(bLeafIndex));
-
-                bLeaf.setNextPageId(dto.nextPageId());
-                indexDM.writePage(bLeafIndex, bLeaf.serialize());
-            }
-
+        if (childIsEmpty) {
             internal.removeChildPageId(key);
 
             if (internal.isEmpty()) {
                 indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
-                return new ImplosionDTO(-1, false);
+                return true;
             }
-
             indexDM.writePage(pageId, internal.serialize());
         }
-        return null;
+        return false;
     }
 
     @Nullable
@@ -165,7 +162,7 @@ public class IndexManager {
 
         int promotedKey = page.getPromotionKey();
 
-        var newPage = page.split(newPageId);
+        var newPage = page.split(pageId, newPageId);
 
         indexDM.writePage(pageId, page.serialize());
         indexDM.writePage(newPageId, newPage.serialize());
