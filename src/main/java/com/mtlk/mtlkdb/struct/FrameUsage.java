@@ -1,5 +1,8 @@
 package com.mtlk.mtlkdb.struct;
 
+/**
+ * LinkedHashMap in Access Order
+ */
 public class FrameUsage {
     private Node[] tracker;
     private Node first;
