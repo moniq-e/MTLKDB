@@ -2,16 +2,15 @@ package com.mtlk.mtlkdb.core.persistence.index;
 
 import java.util.Collections;
 
+import com.mtlk.mtlkdb.core.persistence.SerializablePage;
 import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
-public abstract class AbstractIndexPage {
+public abstract class AbstractIndexPage implements SerializablePage {
     protected SortedArrayList<Integer> keys;
 
     public AbstractIndexPage() {
         keys = new SortedArrayList<>();
     }
-
-    public abstract byte[] serialize();
 
     public abstract AbstractIndexPage split(int thisPageId, int newPageId);
 

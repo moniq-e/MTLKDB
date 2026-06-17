@@ -21,35 +21,50 @@ public class ByteArray {
         return new ByteArray(new byte[size]);
     }
 
+    public void put(byte[] value, int index) {
+        checkOpen();
+
+        var bIdx = idx;
+        System.arraycopy(value, 0, byteArr, index, value.length);
+        idx = bIdx;
+    }
+
     public void put(byte value) {
-        if (!isOpen) throw new IllegalStateException("Cannot operate under closed ByteArray.");
+        checkOpen();
 
         byteArr[idx] = value;
         idx++;
     }
     
     public void put(byte[] value) {
-        if (!isOpen) throw new IllegalStateException("Cannot operate under closed ByteArray.");
+        checkOpen();
 
         System.arraycopy(value, 0, byteArr, idx, value.length);
         idx += value.length;
     }
     
     public void putInt(int value) {
-        if (!isOpen) throw new IllegalStateException("Cannot operate under closed ByteArray.");
+        checkOpen();
 
         System.arraycopy(Encoder.encodeInt(value), 0, byteArr, idx, 4);
         idx += 4;
     }
 
+    public void putShort(int value) {
+        checkOpen();
+
+        System.arraycopy(Encoder.encodeShort(value), 0, byteArr, idx, 2);
+        idx += 2;
+    }
+
     public byte get() {
-        if (!isOpen) throw new IllegalStateException("Cannot operate under closed ByteArray.");
+        checkOpen();
 
         return byteArr[idx++];
     }
 
     public int getInt() {
-        if (!isOpen) throw new IllegalStateException("Cannot operate under closed ByteArray.");
+        checkOpen();
 
         var res = Encoder.decodeInt(Arrays.copyOfRange(byteArr, idx, idx + 4));
         idx += 4;
@@ -72,5 +87,9 @@ public class ByteArray {
         isOpen = false;
 
         return byteArr;
+    }
+
+    private void checkOpen() {
+        if (!isOpen) throw new IllegalStateException("Cannot operate under closed ByteArray.");
     }
 }
