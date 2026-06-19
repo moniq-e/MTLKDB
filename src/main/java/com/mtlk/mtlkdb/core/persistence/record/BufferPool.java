@@ -71,7 +71,7 @@ public class BufferPool {
     }
 
     private RecordPage extractPage(int pageId) {
-        return new RecordPage(extractRawPage(pageId));
+        return RecordPage.deserialize(extractRawPage(pageId));
     }
 
     private byte[] extractRawPage(int pageId) {

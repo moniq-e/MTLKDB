@@ -35,6 +35,10 @@ public class Table {
         return folder.getName().split("table_")[1];
     }
 
+    public int deleteRow(String primaryKey) {
+        return -1; //TODO
+    }
+
     public RawRow deserializeRow(byte[] record) {
         var rowData = new byte[schema.size()][];
 

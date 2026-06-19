@@ -30,11 +30,12 @@ private HashMap<String, Table> tables;
             try {
                 var newTableFolder = new File(root, "table_" + tableName);
                 tables.put(tableName, new Table(tableName, newTableFolder));
+                return true;
             } catch (IOException e) {
                 return false;
             }
-            return true;
-        } else return false;
+        }
+        return false;
     }
 
     public boolean createDatabase(String dbName) {
@@ -52,12 +53,12 @@ private HashMap<String, Table> tables;
         throw new UnsupportedOperationException("Unimplemented method 'insertRows'");
     }
 
-    public int deleteRow(String tableName, Object primaryKey) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRow'");
+    public int deleteRow(String tableName, String primaryKey) {
+        var table = findTable(tableName);
+        return table.deleteRow(primaryKey);
     }
 
-    public int deleteRows(String tableName, Object[] primaryKey) {
+    public int deleteRows(String tableName, String[] primaryKey) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteRows'");
     }
@@ -65,5 +66,12 @@ private HashMap<String, Table> tables;
     public RawRow[] select(String tableName, String[] columns, Expression expression) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'select'");
+    }
+
+    private Table findTable(String tableName) {
+        if (!tables.containsKey(tableName)) {
+            throw new IllegalArgumentException("Could not find "+tableName+" table.");
+        }
+        return tables.get(tableName);
     }
 }

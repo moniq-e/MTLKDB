@@ -4,10 +4,9 @@ import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import com.mtlk.mtlkdb.core.persistence.SerializablePage;
-import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.util.ByteArray;
 import com.mtlk.mtlkdb.struct.util.Encoder;
 
@@ -64,14 +63,27 @@ public class RecordPage implements SerializablePage{
     }
 
     public int insertRecord(byte[] record) {
-        var nextFreePos = records.get(header.getLast()).length;
+        var nextFreePos = header.getLast() + records.getLast().length;
 
-        if (nextFreePos < PAGE_SIZE - record.length) return -1;
+        if (record.length > PAGE_SIZE - nextFreePos) return -1;
 
         header.add((short) nextFreePos);
         records.add(record);
 
-        return nextFreePos;
+        return records.size() - 1;
+    }
+
+    public int insertRecord(List<byte[]> rawRecords) {
+        var freeSize = PAGE_SIZE - (header.getLast() + records.getLast().length);
+
+        var actualSize = 0;
+        for (int i = 0; i < rawRecords.size(); i++) {
+            actualSize += rawRecords.get(i).length;
+            if (actualSize > freeSize) return -1;
+        }
+
+        records.addAll(rawRecords);
+        return records.size() - rawRecords.size();
     }
 
     public void removeRecord(int slotId) {

@@ -45,12 +45,12 @@ public class CLITest {
                 }
 
                 @Override
-                public int deleteRow(String tableName, Object primaryKey) {
+                public int deleteRow(String tableName, String primaryKey) {
                     return 1;
                 }
 
                 @Override
-                public int deleteRows(String tableName, Object[] primaryKeys) {
+                public int deleteRows(String tableName, String[] primaryKeys) {
                     return 1;
                 }
 
