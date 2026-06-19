@@ -7,20 +7,21 @@ import java.io.IOException;
 
 import com.mtlk.mtlkdb.core.persistence.index.IndexManager;
 import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
+import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.RawRow;
 
 public class Table {
     private String tableName;
     private File tableFolder;
     private TableSchema schema;
-    private BufferPool rows;
+    private BufferPool pages;
     private IndexManager indexManager;
 
     public Table(String tableName, File tableFolder) throws IOException {
         this.tableName = tableName;
         this.tableFolder = tableFolder;
         readColumnDefinition();
-        rows = new BufferPool(tableName + ".dat");
+        pages = new BufferPool(tableName + ".dat");
         indexManager = new IndexManager(tableName + ".idx");
     }
 
@@ -35,8 +36,20 @@ public class Table {
         return folder.getName().split("table_")[1];
     }
 
-    public int deleteRow(String primaryKey) {
-        return -1; //TODO
+    public int deleteRow(String primaryKey) throws IOException {
+        var type = schema.get(primaryKey).columnType();
+
+        if (type != ColumnType.INT) return -1;
+
+        var value = Integer.parseInt(primaryKey);
+
+        var rid = indexManager.search(value);
+        var page = pages.getPage(rid.pageId());
+        page.removeRecord(rid.slotId());
+
+        pages.//HOLD page
+
+        return -1;
     }
 
     public RawRow deserializeRow(byte[] record) {

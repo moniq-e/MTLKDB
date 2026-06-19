@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,13 +22,12 @@ import com.mtlk.mtlkdb.struct.ConstraintMap;
 public class TableSchema {
     private File columnsFile;
     private JSONArray columnsJson;
-    private ColumnDefinition[] columns;
+    private HashMap<String, ColumnDefinition> columns;
     private String[] columnNames;
 
     public TableSchema(File file) throws JSONException, IOException {
         columnsFile = file;
         init(columnsFile);
-        updateColumnsNames();
     }
 
     private void init(File file) throws JSONException, IOException {
@@ -35,10 +35,12 @@ public class TableSchema {
             columnsJson = new JSONArray(fr.readAllAsString());
         }
 
-        columns = new ColumnDefinition[columnsJson.length()];
-        for (int i = 0; i < columns.length; i++) {
+        columnNames = new String[columnsJson.length()];
+        columns = new HashMap<>(columnsJson.length());
+        for (int i = 0; i < columns.size(); i++) {
             var jsonColumn = columnsJson.getJSONObject(i);
 
+            var name = jsonColumn.getString("name");
             var type = ColumnType.fromString(jsonColumn.getString("type"), jsonColumn.optInt("size"));
 
             ConstraintMap[] constraints = null;
@@ -53,20 +55,17 @@ public class TableSchema {
                 }
             }
 
-            columns[i] = new ColumnDefinition(jsonColumn.getString("name"), type, constraints);
+            columnNames[i] = name;
+            columns.put(name, new ColumnDefinition(jsonColumn.getString("name"), type, constraints));
         }
     }
 
-    private void updateColumnsNames() {
-        columnNames = new String[columns.length];
-
-        for (int i = 0; i < columnNames.length; i++) {
-            columnNames[i] = columns[i].name();
-        }
+    public ColumnDefinition get(int pos) {
+        return get(columnNames[pos]);
     }
 
-    public ColumnDefinition get(int i) {
-        return columns[i];
+    public ColumnDefinition get(String columnName) {
+        return columns.get(columnName);
     }
 
     public void save() throws IOException {
@@ -80,6 +79,6 @@ public class TableSchema {
     }
 
     public int size() {
-        return columns.length;
+        return columns.size();
     }
 }

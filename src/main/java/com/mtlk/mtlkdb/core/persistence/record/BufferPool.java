@@ -30,7 +30,7 @@ public class BufferPool {
 
     public RecordPage getPage(int pageId) throws IOException {
         for (int i = 0; i < NUM_PAGES; i++) {
-            if (((occupiedFlags >> i) & 1) == 1 && frameToPageId[i] == pageId) {
+            if (checkOccupied(i) && frameToPageId[i] == pageId) {
                 frameMan.update(i);
                 return extractPage(i);
             }
@@ -38,36 +38,32 @@ public class BufferPool {
 
         int freeFrame = -1;
         for (int i = 0; i < NUM_PAGES; i++) {
-            if (((occupiedFlags >> i) & 1) == 0) {
+            if (!checkOccupied(i)) {
                 freeFrame = i;
                 break;
             }
         }
 
         if (freeFrame != -1) {
-            occupiedFlags |= (1 << freeFrame);
+            markOccupied(freeFrame);
             frameToPageId[freeFrame] = pageId;
 
             diskPageToMemory(pageId);
             frameMan.update(freeFrame);
             return extractPage(pageId);
         }
-        
+
         var lruFrame = frameMan.getLRU();
         var lruPageId = frameToPageId[lruFrame];
 
-        if (((dirtyFlags >> lruFrame) & 1) == 1) {
+        if (checkDirty(lruFrame)) {
             diskManager.writePage(lruPageId, extractRawPage(lruPageId));
 
-            dirtyFlags ^= (1 << lruFrame);
-            occupiedFlags ^= (1 << lruFrame);
+            unmarkDirty(lruFrame);
+            unmarkOccupied(lruFrame);
         }
 
         return getPage(pageId);
-    }
-    
-    public void markDirty(int frameId) {
-        dirtyFlags |= (1 << frameId);
     }
 
     private RecordPage extractPage(int pageId) {
@@ -86,5 +82,29 @@ public class BufferPool {
         var data = diskManager.readPage(pageId);
 
         System.arraycopy(data, 0, memory, pageId * PAGE_SIZE, PAGE_SIZE);
+    }
+
+    private boolean checkOccupied(int frameId) {
+        return ((occupiedFlags >> frameId) & 1) == 1;
+    }
+
+    private void markOccupied(int frameId) {
+        occupiedFlags |= (1 << frameId);
+    }
+
+    private void unmarkOccupied(int frameId) {
+        occupiedFlags &= ~(1 << frameId);
+    }
+
+    private boolean checkDirty(int frameId) {
+        return ((dirtyFlags >> frameId) & 1) == 1;
+    }
+
+    private void markDirty(int frameId) {
+        dirtyFlags |= (1 << frameId);
+    }
+
+    private void unmarkDirty(int frameId) {
+        dirtyFlags &= ~(1 << frameId);
     }
 }
