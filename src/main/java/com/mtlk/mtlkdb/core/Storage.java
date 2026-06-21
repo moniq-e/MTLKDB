@@ -53,9 +53,14 @@ private HashMap<String, Table> tables;
         throw new UnsupportedOperationException("Unimplemented method 'insertRows'");
     }
 
-    public int deleteRow(String tableName, String primaryKey) {
+    public boolean deleteRow(String tableName, String primaryKey) {
         var table = findTable(tableName);
-        return table.deleteRow(primaryKey);
+        try {
+            return table.deleteRow(primaryKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public int deleteRows(String tableName, String[] primaryKey) {

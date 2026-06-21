@@ -22,6 +22,7 @@ public class IndexManager {
         this.header = IndexHeader.deserialize(indexDM.readPage(0));
     }
 
+    @Nullable
     public RecordId search(int key) throws IOException {
         int currentPageId = header.getRootPageId();
 

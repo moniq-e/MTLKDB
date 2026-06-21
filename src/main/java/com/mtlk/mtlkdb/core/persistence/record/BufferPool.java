@@ -48,7 +48,7 @@ public class BufferPool {
             markOccupied(freeFrame);
             frameToPageId[freeFrame] = pageId;
 
-            diskPageToMemory(pageId);
+            readFromDiskToMemory(pageId);
             frameMan.update(freeFrame);
             return extractPage(pageId);
         }
@@ -66,8 +66,22 @@ public class BufferPool {
         return getPage(pageId);
     }
 
+    public void writePage(RecordPage page) throws IOException {
+        int frameId;
+        for (frameId = 0; frameId < frameToPageId.length; frameId++) {
+            if (frameToPageId[frameId] == page.getId()) break;
+        }
+
+        if (frameId < frameToPageId.length) {
+            writeToMemory(page.getId(), page.serialize());
+            markDirty(frameId);
+        } else {
+            diskManager.writePage(page.getId(), page.serialize());
+        }
+    }
+
     private RecordPage extractPage(int pageId) {
-        return RecordPage.deserialize(extractRawPage(pageId));
+        return RecordPage.deserialize(pageId, extractRawPage(pageId));
     }
 
     private byte[] extractRawPage(int pageId) {
@@ -78,7 +92,11 @@ public class BufferPool {
         return res;
     }
 
-    private void diskPageToMemory(int pageId) throws IOException {
+    private void writeToMemory(int pageId, byte[] data) {
+        System.arraycopy(data, 0, memory, pageId * PAGE_SIZE, PAGE_SIZE);
+    }
+
+    private void readFromDiskToMemory(int pageId) throws IOException {
         var data = diskManager.readPage(pageId);
 
         System.arraycopy(data, 0, memory, pageId * PAGE_SIZE, PAGE_SIZE);

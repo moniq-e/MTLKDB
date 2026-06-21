@@ -10,22 +10,24 @@ import com.mtlk.mtlkdb.core.persistence.SerializablePage;
 import com.mtlk.mtlkdb.struct.util.ByteArray;
 import com.mtlk.mtlkdb.struct.util.Encoder;
 
-public class RecordPage implements SerializablePage{
+public class RecordPage implements SerializablePage {
     public static final int VARCHAR_SIZE_BYTES = 2;
     public static final int RECORD_SIZE_BYTES = 4;
     public static final int HEADER_SIZE_BYTES = 2;
     public static final int HEADER_SLOT_SIZE_BYTES = 2;
 
+    private int id;
     private ArrayList<Short> header;
     private ArrayList<byte[]> records;
 
-    private RecordPage() {
+    private RecordPage(int pageId) {
+        this.id = pageId;
         this.header = new ArrayList<>();
         this.records = new ArrayList<>();
     }
 
-    public static RecordPage deserialize(byte[] data) {
-        var page = new RecordPage();
+    public static RecordPage deserialize(int pageId, byte[] data) {
+        var page = new RecordPage(pageId);
 
         var headerSlotCount = Encoder.decodeShort(Arrays.copyOfRange(data, 0, HEADER_SIZE_BYTES));
 
@@ -107,5 +109,9 @@ public class RecordPage implements SerializablePage{
         for (int i = fromSlotId; i < header.size(); i++) {
             header.set(i, (short) (header.get(i) - removedSize));
         }
+    }
+
+    public int getId() {
+        return id;
     }
 }

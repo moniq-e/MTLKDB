@@ -45,8 +45,8 @@ public class CLITest {
                 }
 
                 @Override
-                public int deleteRow(String tableName, String primaryKey) {
-                    return 1;
+                public boolean deleteRow(String tableName, String primaryKey) {
+                    return true;
                 }
 
                 @Override

@@ -5,6 +5,8 @@ import static com.mtlk.mtlkdb.core.persistence.record.RecordPage.VARCHAR_SIZE_BY
 import java.io.File;
 import java.io.IOException;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mtlk.mtlkdb.core.persistence.index.IndexManager;
 import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
 import com.mtlk.mtlkdb.struct.ColumnType;
@@ -36,20 +38,22 @@ public class Table {
         return folder.getName().split("table_")[1];
     }
 
-    public int deleteRow(String primaryKey) throws IOException {
+    @Nullable
+    public boolean deleteRow(String primaryKey) throws IOException {
         var type = schema.get(primaryKey).columnType();
 
-        if (type != ColumnType.INT) return -1;
+        if (type != ColumnType.INT) return false;
 
         var value = Integer.parseInt(primaryKey);
 
         var rid = indexManager.search(value);
+        if (rid == null) return false;
+
         var page = pages.getPage(rid.pageId());
         page.removeRecord(rid.slotId());
+        pages.writePage(page);
 
-        pages.//HOLD page
-
-        return -1;
+        return true;
     }
 
     public RawRow deserializeRow(byte[] record) {
