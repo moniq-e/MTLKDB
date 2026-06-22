@@ -22,4 +22,8 @@ public class ColumnValue extends LiteralValue {
     public int compareTo(LiteralValue o) {
         throw new UnsupportedOperationException("Unable to call 'compareTo' over ColumnValue");
     }
+
+    public String getColumnName() {
+        return columnName;
+    }
 }

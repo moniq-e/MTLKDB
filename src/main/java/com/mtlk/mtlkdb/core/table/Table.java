@@ -40,7 +40,7 @@ public class Table {
 
     @Nullable
     public boolean deleteRow(String primaryKey) throws IOException {
-        var type = schema.get(primaryKey).columnType();
+        var type = schema.getPrimaryKey().columnType();
 
         if (type != ColumnType.INT) return false;
 

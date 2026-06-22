@@ -24,6 +24,7 @@ public class TableSchema {
     private JSONArray columnsJson;
     private HashMap<String, ColumnDefinition> columns;
     private String[] columnNames;
+    private int primaryKeyIndex;
 
     public TableSchema(File file) throws JSONException, IOException {
         columnsFile = file;
@@ -45,16 +46,21 @@ public class TableSchema {
 
             ConstraintMap[] constraints = null;
 
+            var isPk = false;
             var jsonConstraints = jsonColumn.optJSONArray("constraints");
+
             if (jsonConstraints != null) {
                 constraints = new ConstraintMap[jsonConstraints.length()];
 
                 for (int j = 0; j < constraints.length; j++) {
                     var jsonConstraint = jsonConstraints.getJSONObject(i);
                     constraints[j] = ConstraintMap.from(jsonConstraint.getString("type"), jsonConstraint.opt("value"));
+
+                    if (constraints[j] == ConstraintMap.PRIMARY()) isPk = true;
                 }
             }
 
+            if (isPk) primaryKeyIndex = i;
             columnNames[i] = name;
             columns.put(name, new ColumnDefinition(jsonColumn.getString("name"), type, constraints));
         }
@@ -66,6 +72,10 @@ public class TableSchema {
 
     public ColumnDefinition get(String columnName) {
         return columns.get(columnName);
+    }
+    
+    public ColumnDefinition getPrimaryKey() {
+        return get(primaryKeyIndex);
     }
 
     public void save() throws IOException {

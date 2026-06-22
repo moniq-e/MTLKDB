@@ -1,6 +1,7 @@
 package com.mtlk.mtlkdb.core.persistence.record;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.mtlk.mtlkdb.struct.FrameUsage;
 
@@ -57,7 +58,7 @@ public class BufferPool {
         var lruPageId = frameToPageId[lruFrame];
 
         if (checkDirty(lruFrame)) {
-            diskManager.writePage(lruPageId, extractRawPage(lruPageId));
+            diskManager.writePage(lruPageId, readFromMemory(lruPageId));
 
             unmarkDirty(lruFrame);
             unmarkOccupied(lruFrame);
@@ -81,15 +82,12 @@ public class BufferPool {
     }
 
     private RecordPage extractPage(int pageId) {
-        return RecordPage.deserialize(pageId, extractRawPage(pageId));
+        return RecordPage.deserialize(pageId, readFromMemory(pageId));
     }
 
-    private byte[] extractRawPage(int pageId) {
-        var res = new byte[PAGE_SIZE];
-
-        System.arraycopy(memory, pageId * PAGE_SIZE, res, 0, PAGE_SIZE);
-
-        return res;
+    private byte[] readFromMemory(int pageId) {
+        var index = pageId * PAGE_SIZE;
+        return Arrays.copyOfRange(memory, index, index + PAGE_SIZE);
     }
 
     private void writeToMemory(int pageId, byte[] data) {
@@ -98,8 +96,7 @@ public class BufferPool {
 
     private void readFromDiskToMemory(int pageId) throws IOException {
         var data = diskManager.readPage(pageId);
-
-        System.arraycopy(data, 0, memory, pageId * PAGE_SIZE, PAGE_SIZE);
+        writeToMemory(pageId, data);
     }
 
     private boolean checkOccupied(int frameId) {

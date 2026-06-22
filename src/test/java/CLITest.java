@@ -9,6 +9,7 @@ import com.mtlk.mtlkdb.core.query.QueryBuilder;
 import com.mtlk.mtlkdb.exception.InvalidSyntaxException;
 import com.mtlk.mtlkdb.expression.Equals;
 import com.mtlk.mtlkdb.expression.Expression;
+import com.mtlk.mtlkdb.expression.GreaterThan;
 import com.mtlk.mtlkdb.struct.ColumnDefinition;
 import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.ConstraintMap;
@@ -95,7 +96,7 @@ public class CLITest {
             .columns("*")
             .from("customers")
             .where(new Equals(new LiteralValue("a"), new LiteralValue("b")))
-            .and(row -> true)
+            .and(new GreaterThan(new LiteralValue("1"), new LiteralValue("2")))
         .execute());
     }
 
