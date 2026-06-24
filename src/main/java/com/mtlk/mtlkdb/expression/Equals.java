@@ -1,10 +1,14 @@
 package com.mtlk.mtlkdb.expression;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mtlk.mtlkdb.core.table.TableSchema;
 import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.util.ScanRange;
+import com.mtlk.mtlkdb.struct.value.ColumnValue;
 import com.mtlk.mtlkdb.struct.value.LiteralValue;
 
-public record Equals(LiteralValue a, LiteralValue b) implements Expression {
+public record Equals(ColumnValue a, LiteralValue b) implements Expression {
 
     @Override
     public boolean evaluate(RawRow row) {
@@ -17,5 +21,11 @@ public record Equals(LiteralValue a, LiteralValue b) implements Expression {
     @Override
     public boolean referPrimaryKey(TableSchema schema) {
         return referPrimaryKey(schema, a, b);
+    }
+
+    @Override
+    @Nullable
+    public ScanRange getScanRange() {
+        return b instanceof ColumnValue ? null : new ScanRange(b.asInt());
     }
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.jetbrains.annotations.NotNull;
 
 import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.util.Encoder;
 import com.mtlk.mtlkdb.struct.util.RawRowEncoder;
 
 public class LiteralValue implements Comparable<LiteralValue> {
@@ -26,5 +27,9 @@ public class LiteralValue implements Comparable<LiteralValue> {
     @Override
     public int compareTo(LiteralValue o) {
         return Arrays.compare(buffer, o.buffer);
+    }
+
+    public int asInt() {
+        return Encoder.decodeInt(buffer);
     }
 }

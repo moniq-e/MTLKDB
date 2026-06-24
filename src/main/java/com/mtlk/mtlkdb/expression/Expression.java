@@ -2,6 +2,7 @@ package com.mtlk.mtlkdb.expression;
 
 import com.mtlk.mtlkdb.core.table.TableSchema;
 import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.util.ScanRange;
 import com.mtlk.mtlkdb.struct.value.ColumnValue;
 import com.mtlk.mtlkdb.struct.value.LiteralValue;
 
@@ -11,13 +12,16 @@ public interface Expression {
 
     public boolean referPrimaryKey(TableSchema schema);
 
+    public ScanRange getScanRange();
+
     public default boolean referPrimaryKey(TableSchema schema, LiteralValue a, LiteralValue b) {
-        if (a instanceof ColumnValue) {
-            var ac = (ColumnValue) a;
+        return referPrimaryKey(schema, a) || referPrimaryKey(schema, b);
+    }
+
+    public default boolean referPrimaryKey(TableSchema schema, LiteralValue lv) {
+        if (lv instanceof ColumnValue) {
+            var ac = (ColumnValue) lv;
             return ac.getColumnName().equals(schema.getPrimaryKey().name());
-        } else if (b instanceof ColumnValue) {
-            var bc = (ColumnValue) b;
-            return bc.getColumnName().equals(schema.getPrimaryKey().name());
         }
         return false;
     }

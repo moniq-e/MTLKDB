@@ -96,7 +96,7 @@ public class IndexLeafPage extends AbstractIndexPage {
         var toPos = getKeyIndex(to);
 
         if (fromPos < 0) fromPos = -fromPos - 1;
-        if (toPos < 0) toPos = -toPos - 1;
+        if (toPos < 0) toPos = -toPos - 2; //TODO
 
         return new RecordIdsDTO(Collections.unmodifiableList(rids.subList(fromPos, toPos + 1)), keys.get(toPos));
     }

@@ -2,6 +2,7 @@ package com.mtlk.mtlkdb.expression;
 
 import com.mtlk.mtlkdb.core.table.TableSchema;
 import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.util.ScanRange;
 
 public record And(Expression left, Expression right) implements Expression {
 
@@ -13,5 +14,11 @@ public record And(Expression left, Expression right) implements Expression {
     @Override
     public boolean referPrimaryKey(TableSchema schema) {
         return referPrimaryKey(schema, left, right);
+    }
+
+    @Override
+    public ScanRange getScanRange() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
