@@ -1,7 +1,5 @@
 package com.mtlk.mtlkdb.expression;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.mtlk.mtlkdb.core.table.TableSchema;
 import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.util.ScanRange;
@@ -24,7 +22,6 @@ public record Equals(ColumnValue a, LiteralValue b) implements Expression {
     }
 
     @Override
-    @Nullable
     public ScanRange getScanRange() {
         return b instanceof ColumnValue ? null : new ScanRange(b.asInt());
     }

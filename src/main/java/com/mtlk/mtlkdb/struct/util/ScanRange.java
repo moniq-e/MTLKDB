@@ -3,7 +3,7 @@ package com.mtlk.mtlkdb.struct.util;
 public class ScanRange {
     private Integer low;
     private Integer high;
-    private Integer[] specificIds;
+    private int[] specificIds;
 
     public ScanRange(Integer low, Integer high) {
         this.low = low;
@@ -11,15 +11,22 @@ public class ScanRange {
         this.specificIds = null;
     }
 
-    public ScanRange(Integer... specificIds) {
+    public ScanRange(int... specificIds) {
         this.specificIds = specificIds;
+    }
+
+    public static ScanRange merge(ScanRange a, ScanRange b) {
+        if (a == null) return b;
+        if (b == null) return a;
+
+        
     }
 
     public boolean isSpecificLookups() {
         return specificIds != null;
     }
 
-    public Integer[] getSpecificIds() {
+    public int[] getSpecificIds() {
         return specificIds;
     }
 

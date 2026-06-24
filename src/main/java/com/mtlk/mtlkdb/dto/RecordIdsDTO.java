@@ -4,4 +4,4 @@ import java.util.List;
 
 import com.mtlk.mtlkdb.struct.RecordId;
 
-public record RecordIdsDTO(List<RecordId> recordIds, int lastKey) {}
+public record RecordIdsDTO(List<RecordId> recordIds, int lastKey, boolean goToNextPage) {}

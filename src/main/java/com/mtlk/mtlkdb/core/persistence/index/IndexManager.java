@@ -51,12 +51,12 @@ public class IndexManager {
         var actual = IndexLeafPage.deserialize(pageData);
         var biggestKey = fromKey;
         var res = new ArrayList<RecordId>();
-        while (true) { //TODO
-            var rids = actual.getRecordIds(biggestKey, toKey);
-            res.addAll(rids.recordIds());
-            biggestKey = rids.lastKey();
+        while (true) {
+            var ridto = actual.getRecordIds(biggestKey, toKey);
+            res.addAll(ridto.recordIds());
+            biggestKey = ridto.lastKey();
 
-            if (biggestKey >= toKey) break;
+            if (!ridto.goToNextPage()) break;
 
             actual = IndexLeafPage.deserialize(indexDM.readPage(actual.getNextPageId()));
         }

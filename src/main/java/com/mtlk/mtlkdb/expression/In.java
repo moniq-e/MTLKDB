@@ -10,14 +10,15 @@ import com.mtlk.mtlkdb.struct.value.LiteralValue;
 public class In implements Expression {
     private LiteralValue a;
     private LiteralValue[] range;
+    private ScanRange sr;
 
     public In(LiteralValue a, LiteralValue... range) {
-        this.a = a;
-        this.range = range;
+        this(a, true, range);
     }
 
     public In(LiteralValue a, boolean sorted, LiteralValue... range) {
-        this(a, range);
+        this.a = a;
+        this.range = range;
         if (!sorted) Arrays.sort(this.range);
     }
 
@@ -34,6 +35,9 @@ public class In implements Expression {
 
     @Override
     public ScanRange getScanRange() {
-        return new ScanRange(Arrays.stream(range).map(lv -> (Integer) lv.asInt()).toArray(a -> new Integer[a]));
+        if (sr == null) {
+            return (sr = new ScanRange(Arrays.stream(range).mapToInt(lv -> lv.asInt()).toArray()));
+        }
+        return sr;
     }
 }

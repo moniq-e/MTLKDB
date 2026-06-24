@@ -1,5 +1,7 @@
 package com.mtlk.mtlkdb.expression;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mtlk.mtlkdb.core.table.TableSchema;
 import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.util.ScanRange;
@@ -12,6 +14,7 @@ public interface Expression {
 
     public boolean referPrimaryKey(TableSchema schema);
 
+    @Nullable
     public ScanRange getScanRange();
 
     public default boolean referPrimaryKey(TableSchema schema, LiteralValue a, LiteralValue b) {

@@ -1,5 +1,7 @@
 package com.mtlk.mtlkdb.expression;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.mtlk.mtlkdb.core.table.TableSchema;
 import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.util.ScanRange;
@@ -17,8 +19,8 @@ public record And(Expression left, Expression right) implements Expression {
     }
 
     @Override
+    @Nullable
     public ScanRange getScanRange() {
-        // TODO Auto-generated method stub
         return null;
     }
 }
