@@ -54,8 +54,11 @@ public class IndexManager {
 
         while (true) {
             var ridto = actual.getRecordIds(currentFromKey, toKey);
-            res.addAll(ridto.recordIds());
-            currentFromKey = ridto.lastKey() + 1;
+
+            if (ridto.recordIds() != null) {
+                res.addAll(ridto.recordIds());
+                currentFromKey = ridto.lastKey() + 1;
+            }
 
             if (!ridto.goToNextPage()) break;
 

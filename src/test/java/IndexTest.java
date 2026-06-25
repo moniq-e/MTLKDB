@@ -82,7 +82,7 @@ public class IndexTest {
     }
 
     public static RecordIdsDTO recordIdsDTO(int from, int to) {
-        return new RecordIdsDTO(sequentialRIDs(from, to), to);
+        return new RecordIdsDTO(sequentialRIDs(from, to), to, false);
     }
 
     public static List<RecordId> sequentialRIDs(int from, int to) {

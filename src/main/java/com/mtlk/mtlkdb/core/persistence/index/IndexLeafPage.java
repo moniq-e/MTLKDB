@@ -105,6 +105,10 @@ public class IndexLeafPage extends AbstractIndexPage {
             toPos++;
         }
 
+        if (fromPos >= toPos || keys.isEmpty()) {
+            return new RecordIdsDTO(null, from, true);
+        }
+
         return new RecordIdsDTO(Collections.unmodifiableList(rids.subList(fromPos, toPos)), keys.get(toPos - 1), gotonp);
     }
 

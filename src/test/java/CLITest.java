@@ -14,6 +14,7 @@ import com.mtlk.mtlkdb.struct.ColumnDefinition;
 import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.ConstraintMap;
 import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.value.ColumnValue;
 import com.mtlk.mtlkdb.struct.value.LiteralValue;
 
 public class CLITest {
@@ -89,14 +90,14 @@ public class CLITest {
         assertArrayEquals(emptyArray, QueryBuilder.select(storage)
             .columns("*")
             .from("customers")
-            .where(new Equals(new LiteralValue("a"), new LiteralValue("b")))
+            .where(new Equals(new ColumnValue("a"), new LiteralValue("b")))
         .execute());
 
         assertArrayEquals(emptyArray, QueryBuilder.select(storage)
             .columns("*")
             .from("customers")
-            .where(new Equals(new LiteralValue("a"), new LiteralValue("b")))
-            .and(new GreaterThan(new LiteralValue("1"), new LiteralValue("2")))
+            .where(new Equals(new ColumnValue("a"), new LiteralValue("b")))
+            .and(new GreaterThan(new ColumnValue("1"), new LiteralValue("2")))
         .execute());
     }
 
