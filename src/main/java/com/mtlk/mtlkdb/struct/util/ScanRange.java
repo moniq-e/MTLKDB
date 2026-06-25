@@ -19,7 +19,7 @@ public class ScanRange {
         if (a == null) return b;
         if (b == null) return a;
 
-        
+        return null; //TODO
     }
 
     public boolean isSpecificLookups() {

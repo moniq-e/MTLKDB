@@ -94,17 +94,18 @@ public class IndexLeafPage extends AbstractIndexPage {
     public RecordIdsDTO getRecordIds(int from, int to) {
         var fromPos = getKeyIndex(from);
         var toPos = getKeyIndex(to);
-        var lastKeyPos = toPos;
         var gotonp = false;
 
         if (fromPos < 0) fromPos = -fromPos - 1;
 
         if (toPos < 0) {
             toPos = -toPos - 1;
-            lastKeyPos = toPos - 1;
             if (toPos == keys.size()) gotonp = true;
+        } else {
+            toPos++;
         }
-        return new RecordIdsDTO(Collections.unmodifiableList(rids.subList(fromPos, toPos)), keys.get(lastKeyPos), gotonp);
+
+        return new RecordIdsDTO(Collections.unmodifiableList(rids.subList(fromPos, toPos)), keys.get(toPos - 1), gotonp);
     }
 
     public void insert(int key, RecordId recordId) {

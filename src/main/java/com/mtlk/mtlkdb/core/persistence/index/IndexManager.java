@@ -49,16 +49,20 @@ public class IndexManager {
         }
 
         var actual = IndexLeafPage.deserialize(pageData);
-        var biggestKey = fromKey;
+        var currentFromKey = fromKey;
         var res = new ArrayList<RecordId>();
+
         while (true) {
-            var ridto = actual.getRecordIds(biggestKey, toKey);
+            var ridto = actual.getRecordIds(currentFromKey, toKey);
             res.addAll(ridto.recordIds());
-            biggestKey = ridto.lastKey();
+            currentFromKey = ridto.lastKey() + 1;
 
             if (!ridto.goToNextPage()) break;
 
-            actual = IndexLeafPage.deserialize(indexDM.readPage(actual.getNextPageId()));
+            var nextPageId = actual.getNextPageId();
+            if (nextPageId == -1) break;
+
+            actual = IndexLeafPage.deserialize(indexDM.readPage(nextPageId));
         }
         return res.toArray(RecordId[]::new);
     }
