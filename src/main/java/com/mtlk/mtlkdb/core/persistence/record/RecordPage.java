@@ -4,6 +4,7 @@ import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.mtlk.mtlkdb.core.persistence.SerializablePage;
@@ -109,6 +110,10 @@ public class RecordPage implements SerializablePage {
         for (int i = fromSlotId; i < header.size(); i++) {
             header.set(i, (short) (header.get(i) - removedSize));
         }
+    }
+
+    public List<byte[]> getRecords() {
+        return Collections.unmodifiableList(records);
     }
 
     public int getId() {

@@ -6,8 +6,12 @@ import java.util.Iterator;
 public class ArrayAsCollection<E> implements Collection<E> {
     private E[] array;
 
-    public ArrayAsCollection(E[] array) {
+    private ArrayAsCollection(E[] array) {
         this.array = array;
+    }
+
+    public static <T> ArrayAsCollection<T> of(T[] array) {
+        return new ArrayAsCollection<>(array);
     }
 
     @Override

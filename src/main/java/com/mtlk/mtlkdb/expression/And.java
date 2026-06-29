@@ -21,6 +21,6 @@ public record And(Expression left, Expression right) implements Expression {
     @Override
     @Nullable
     public ScanRange getScanRange() {
-        return null;
+        return ScanRange.mergeAnd(left.getScanRange(), right.getScanRange());
     }
 }

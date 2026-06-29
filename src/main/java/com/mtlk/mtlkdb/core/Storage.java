@@ -69,8 +69,13 @@ private HashMap<String, Table> tables;
     }
 
     public RawRow[] select(String tableName, String[] columns, Expression expression) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'select'");
+        var table = findTable(tableName);
+        try {
+            return table.select(columns, expression);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new RawRow[0];
+        }
     }
 
     private Table findTable(String tableName) {

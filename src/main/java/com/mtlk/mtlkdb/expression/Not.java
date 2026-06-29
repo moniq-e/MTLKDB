@@ -21,6 +21,6 @@ public record Not(Expression expression) implements Expression {
     @Override
     @Nullable
     public ScanRange getScanRange() {
-        return null;
+        return expression.getScanRange();
     }
 }

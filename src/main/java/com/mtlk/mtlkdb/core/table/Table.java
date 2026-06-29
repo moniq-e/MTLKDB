@@ -4,13 +4,19 @@ import static com.mtlk.mtlkdb.core.persistence.record.RecordPage.VARCHAR_SIZE_BY
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.mtlk.mtlkdb.core.persistence.index.IndexManager;
 import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
+import com.mtlk.mtlkdb.expression.Expression;
 import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.RecordId;
+import com.mtlk.mtlkdb.struct.util.ArrayAsCollection;
+import com.mtlk.mtlkdb.struct.util.ScanRange;
 
 public class Table {
     private String tableName;
@@ -38,7 +44,6 @@ public class Table {
         return folder.getName().split("table_")[1];
     }
 
-    @Nullable
     public boolean deleteRow(String primaryKey) throws IOException {
         var type = schema.getPrimaryKey().columnType();
 
@@ -54,6 +59,53 @@ public class Table {
         pages.writePage(page);
 
         return true;
+    }
+
+    public RawRow[] select(String[] columns, Expression expression) {
+        List<RecordId> ridsToFetch = new ArrayList<>();
+        var resultRows = new ArrayList<RawRow>();
+
+        if (expression != null && expression.referPrimaryKey(schema)) {
+            var sr = expression.getScanRange();
+
+            if (sr.getSpecificIds() != null && !sr.getSpecificIds().isEmpty()) {
+                for (int id : sr.getSpecificIds()) {
+                    var rid = indexManager.search(id);
+                    if (rid != null) ridsToFetch.add(rid);
+                }
+            } else {
+                var rangeResult = indexManager.search(sr.getLow(), sr.getHigh());
+                if (rangeResult.length > 0) {
+                    ridsToFetch.addAll(ArrayAsCollection.of(rangeResult));
+                }
+            }
+
+            ridsToFetch = ridsToFetch.stream().distinct().sorted().toList();
+
+            for (var rid : ridsToFetch) {
+                var recordPage = pages.getPage(rid.pageId());
+                var recordBytes = recordPage.getRecord(rid.slotId());
+
+                if (recordBytes == null) continue;
+
+                var row = deserializeRow(recordBytes);
+                if (expression.evaluate(row)) resultRows.add(row);
+            }
+            return resultRows.toArray(RawRow[]::new);
+        }
+
+        int totalPages = pages.getTotalPages(); //TODO
+        for (int pageId = 0; pageId < totalPages; pageId++) {
+            var recordPage = pages.getPage(pageId);
+            var allRecords = recordPage.getRecords();
+
+            for (var recordBytes : allRecords) {
+                var row = deserializeRow(recordBytes);
+                if (expression == null || expression.evaluate(row)) resultRows.add(row);
+            }
+        }
+
+        return resultRows.toArray(RawRow[]::new);
     }
 
     public RawRow deserializeRow(byte[] record) {

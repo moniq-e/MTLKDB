@@ -36,7 +36,7 @@ public class In implements Expression {
     @Override
     public ScanRange getScanRange() {
         if (sr == null) {
-            return (sr = new ScanRange(Arrays.stream(range).mapToInt(lv -> lv.asInt()).toArray()));
+            return (sr = new ScanRange(Arrays.stream(range).map(lv -> lv.asInt()).toArray(l -> new Integer[l])));
         }
         return sr;
     }

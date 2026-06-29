@@ -34,7 +34,7 @@ public class InsertQuery {
     }
 
     public InsertQuery values(String[]... vals) {
-        values.addAll(new ArrayAsCollection<>(vals));
+        values.addAll(ArrayAsCollection.of(vals));
         return this;
     }
 

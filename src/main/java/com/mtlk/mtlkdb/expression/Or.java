@@ -18,9 +18,6 @@ public record Or(Expression left, Expression right) implements Expression {
 
     @Override
     public ScanRange getScanRange() {
-        var leftRange = left.getScanRange();
-        var rightRange = right.getScanRange();
-
-        return ScanRange.merge(leftRange, rightRange);
+        return ScanRange.merge(left.getScanRange(), right.getScanRange());
     }
 }
