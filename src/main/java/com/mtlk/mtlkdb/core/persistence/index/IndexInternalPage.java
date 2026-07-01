@@ -19,6 +19,7 @@ public class IndexInternalPage extends AbstractIndexPage {
 
     public IndexInternalPage(int firstChildId) {
         super();
+        childPageIds = new ArrayList<>();
         childPageIds.add(firstChildId);
     }
 

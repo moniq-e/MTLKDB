@@ -1,5 +1,6 @@
 package com.mtlk.mtlkdb.core.persistence.index;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -11,7 +12,7 @@ import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
 import com.mtlk.mtlkdb.struct.util.ByteArray;
 
-public class IndexManager {
+public class IndexManager implements Closeable {
     public static final int PAGE_SIZE = 4096;
 
     private DiskManager indexDM;
@@ -186,5 +187,10 @@ public class IndexManager {
     private int findChildPageIdInInternalNode(byte[] internalPageData, int key) {
         var internalPage = IndexInternalPage.deserialize(internalPageData);
         return internalPage.getChildPageId(key);
+    }
+
+    @Override
+    public void close() throws IOException {
+        indexDM.close();
     }
 }

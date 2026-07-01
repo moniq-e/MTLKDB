@@ -1,3 +1,4 @@
+package persistence;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -11,7 +12,7 @@ import com.mtlk.mtlkdb.core.persistence.index.IndexLeafPage;
 import com.mtlk.mtlkdb.dto.RecordIdsDTO;
 import com.mtlk.mtlkdb.struct.RecordId;
 
-public class IndexTest {
+public class IndexLeafTest {
     private IndexLeafPage leaf;
     private IndexLeafPage leaf2;
 

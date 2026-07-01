@@ -14,7 +14,7 @@ public class IndexHeader {
         var buffer = new ByteArray(data);
         var header = new IndexHeader();
 
-        header.rootPageId = buffer.getInt();
+        header.rootPageId = buffer.getInt(); //TODO
         header.nextFreePageId = buffer.getInt();
 
         if (header.rootPageId == 0) header.setRootPageId(1);

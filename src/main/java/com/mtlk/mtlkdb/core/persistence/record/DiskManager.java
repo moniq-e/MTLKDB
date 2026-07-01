@@ -1,9 +1,10 @@
 package com.mtlk.mtlkdb.core.persistence.record;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class DiskManager {
+public class DiskManager implements Closeable {
     public static final int PAGE_SIZE = 4096;
     private RandomAccessFile dbFile;
 
@@ -38,5 +39,10 @@ public class DiskManager {
             e.printStackTrace();
             return 0;
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        dbFile.close();
     }
 }
