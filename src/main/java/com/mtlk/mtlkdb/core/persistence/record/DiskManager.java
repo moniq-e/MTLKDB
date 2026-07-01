@@ -30,4 +30,13 @@ public class DiskManager {
         dbFile.seek(offset);
         dbFile.write(pageData);
     }
+
+    public long getFileSize() {
+        try {
+            return dbFile.length();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }

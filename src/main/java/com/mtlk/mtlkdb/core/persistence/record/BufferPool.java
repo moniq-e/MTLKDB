@@ -81,6 +81,12 @@ public class BufferPool {
         }
     }
 
+    public int getTotalPages() {
+        var fileSize = diskManager.getFileSize();
+        if (fileSize <= 0) return 0;
+        return (int) Math.ceil(fileSize / (double) PAGE_SIZE);
+    }
+
     private RecordPage extractPage(int pageId) {
         return RecordPage.deserialize(pageId, readFromMemory(pageId));
     }

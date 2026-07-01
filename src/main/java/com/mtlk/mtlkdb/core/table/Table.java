@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.mtlk.mtlkdb.core.persistence.index.IndexManager;
 import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
 import com.mtlk.mtlkdb.expression.Expression;
@@ -16,7 +14,6 @@ import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.RecordId;
 import com.mtlk.mtlkdb.struct.util.ArrayAsCollection;
-import com.mtlk.mtlkdb.struct.util.ScanRange;
 
 public class Table {
     private String tableName;
@@ -61,7 +58,7 @@ public class Table {
         return true;
     }
 
-    public RawRow[] select(String[] columns, Expression expression) {
+    public RawRow[] select(String[] columns, Expression expression) throws IOException {
         List<RecordId> ridsToFetch = new ArrayList<>();
         var resultRows = new ArrayList<RawRow>();
 
@@ -94,7 +91,7 @@ public class Table {
             return resultRows.toArray(RawRow[]::new);
         }
 
-        int totalPages = pages.getTotalPages(); //TODO
+        int totalPages = pages.getTotalPages();
         for (int pageId = 0; pageId < totalPages; pageId++) {
             var recordPage = pages.getPage(pageId);
             var allRecords = recordPage.getRecords();
