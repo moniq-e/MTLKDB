@@ -3,6 +3,7 @@ package com.mtlk.mtlkdb.core.persistence.record;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.mtlk.mtlkdb.core.persistence.DiskManager;
 import com.mtlk.mtlkdb.struct.FrameUsage;
 
 public class BufferPool {
@@ -77,7 +78,7 @@ public class BufferPool {
             writeToMemory(page.getId(), page.serialize());
             markDirty(frameId);
         } else {
-            diskManager.writePage(page.getId(), page.serialize());
+            diskManager.writePage(page.getId(), page);
         }
     }
 

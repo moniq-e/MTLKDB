@@ -15,8 +15,9 @@ import com.mtlk.mtlkdb.struct.util.ByteArray;
 import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
 public class IndexLeafPage extends AbstractIndexPage {
-    private static final int HEADER_SIZE = 1 + 4 + 4 + 4;
+    private static final int HEADER_SIZE = 1 + 1 + 4 + 4 + 4;
     private static final int ENTRY_SIZE = 4 + 4 + 4;
+    private static final byte HEADER_BYTE = 'M';
 
     public static final int MAX_KEYS = (PAGE_SIZE - HEADER_SIZE) / ENTRY_SIZE;
 
@@ -38,10 +39,12 @@ public class IndexLeafPage extends AbstractIndexPage {
         this.rids = new ArrayList<>();
     }
 
+    @Override
     public byte[] serialize() {
         var buffer = ByteArray.allocate(PAGE_SIZE);
 
         buffer.put(IndexPageType.LEAF.get());
+        buffer.put(HEADER_BYTE);
         buffer.putInt(keys.size());
         buffer.putInt(nextPageId);
         buffer.putInt(previousPageId);
@@ -62,22 +65,27 @@ public class IndexLeafPage extends AbstractIndexPage {
         var type = buffer.get();
         if (type != IndexPageType.LEAF.get()) return null;
 
-        int keyCount = buffer.getInt();
-        int nextLeaf = buffer.getInt();
-        int previousLeaf = buffer.getInt();
-
         var page = new IndexLeafPage();
-        page.nextPageId = nextLeaf;
-        page.previousPageId = previousLeaf;
 
-        for (int i = 0; i < keyCount; i++) {
-            int key = buffer.getInt();
-            int datPageId = buffer.getInt();
-            int datSlotId = buffer.getInt();
+        var hb = buffer.get();
+        if (hb == HEADER_BYTE) {
+            int keyCount = buffer.getInt();
+            int nextLeaf = buffer.getInt();
+            int previousLeaf = buffer.getInt();
 
-            page.keys.add(key);
-            page.rids.add(new RecordId(datPageId, datSlotId));
+            page.nextPageId = nextLeaf;
+            page.previousPageId = previousLeaf;
+
+            for (int i = 0; i < keyCount; i++) {
+                int key = buffer.getInt();
+                int datPageId = buffer.getInt();
+                int datSlotId = buffer.getInt();
+
+                page.keys.add(key);
+                page.rids.add(new RecordId(datPageId, datSlotId));
+            }
         }
+
         return page;
     }
 

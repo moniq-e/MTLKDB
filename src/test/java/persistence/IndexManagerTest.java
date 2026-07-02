@@ -56,6 +56,14 @@ public class IndexManagerTest {
         }
 
         assertArrayEquals(expected, indexManager.search(101, 105));
+
+        expected = new RecordId[250];
+        for (int i = 0; i < expected.length; i++) {
+            expected[i] = new RecordId(101 + i, (101 + i) * 10);
+        }
+
+        assertArrayEquals(expected, indexManager.search(101, 350));
+        assertArrayEquals(expected, indexManager.search(101, 400));
     }
 
     @Test

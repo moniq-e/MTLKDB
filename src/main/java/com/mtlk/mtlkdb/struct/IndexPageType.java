@@ -1,8 +1,8 @@
 package com.mtlk.mtlkdb.struct;
 
 public enum IndexPageType {
-    INTERNAL,
-    LEAF;
+    LEAF,
+    INTERNAL;
 
     public byte get() {
         return (byte) ordinal();

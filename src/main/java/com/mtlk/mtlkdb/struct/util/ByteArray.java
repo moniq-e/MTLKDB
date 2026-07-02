@@ -2,7 +2,7 @@ package com.mtlk.mtlkdb.struct.util;
 
 import java.util.Arrays;
 
-import com.mtlk.mtlkdb.core.persistence.record.DiskManager;
+import com.mtlk.mtlkdb.core.persistence.DiskManager;
 
 public class ByteArray {
     public static final byte[] EMPTY_PAGE = new byte[DiskManager.PAGE_SIZE];

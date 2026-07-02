@@ -2,30 +2,39 @@ package com.mtlk.mtlkdb.core.persistence.index;
 
 import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
+import com.mtlk.mtlkdb.core.persistence.SerializablePage;
 import com.mtlk.mtlkdb.struct.util.ByteArray;
 
-public class IndexHeader {
+public class IndexHeader implements SerializablePage {
+    private static final byte HEADER_BYTE = 'M';
+
     private int rootPageId;
     private int nextFreePageId;
 
-    private IndexHeader() {}
+    private IndexHeader() {
+        rootPageId = 1;
+        nextFreePageId = 2;
+    }
 
     public static IndexHeader deserialize(byte[] data) {
         var buffer = new ByteArray(data);
         var header = new IndexHeader();
 
-        header.rootPageId = buffer.getInt(); //TODO
-        header.nextFreePageId = buffer.getInt();
+        var hb = buffer.get();
 
-        if (header.rootPageId == 0) header.setRootPageId(1);
-        if (header.nextFreePageId == 0) header.setNextFreePageId(2);
+        if (hb == HEADER_BYTE) {
+            header.setRootPageId(buffer.getInt());
+            header.setNextFreePageId(buffer.getInt());
+        }
 
         return header;
     }
 
+    @Override
     public byte[] serialize() {
         var buffer = ByteArray.allocate(PAGE_SIZE);
 
+        buffer.put(HEADER_BYTE);
         buffer.putInt(getRootPageId());
         buffer.putInt(getNextFreePageId());
 

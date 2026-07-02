@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.mtlk.mtlkdb.core.persistence.record.DiskManager;
+import com.mtlk.mtlkdb.core.persistence.DiskManager;
 import com.mtlk.mtlkdb.dto.SplitDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
@@ -82,12 +82,59 @@ public class IndexManager implements Closeable {
 
             newRoot.insertChildPageId(dto.promotedKey(), dto.newPageId());
 
-            indexDM.writePage(newRootPageId, newRoot.serialize());
+            indexDM.writePage(newRootPageId, newRoot);
             header.setRootPageId(newRootPageId);
             header.incNextFreePageId();
         }
 
-        indexDM.writePage(0, header.serialize());
+        indexDM.writePage(0, header);
+    }
+
+    @Nullable
+    private SplitDTO insertAndSplit(int pageId, int key, RecordId rid) throws IOException {
+        var pageData = indexDM.readPage(pageId);
+
+        if (pageData[0] == IndexPageType.LEAF.get()) {
+            var leaf = IndexLeafPage.deserialize(pageData);
+            leaf.insert(key, rid);
+
+            if (leaf.isFull()) {
+                return splitAndSave(leaf, pageId);
+            }
+
+            indexDM.writePage(pageId, leaf);
+            return null;
+        }
+
+        var internal = IndexInternalPage.deserialize(pageData);
+        int childPageId = internal.getChildPageId(key);
+
+        var dto = insertAndSplit(childPageId, key, rid);
+
+        if (dto != null) {
+            internal.insertChildPageId(dto.promotedKey(), dto.newPageId());
+
+            if (internal.isFull()) {
+                return splitAndSave(internal, pageId);
+            }
+
+            indexDM.writePage(pageId, internal);
+        }
+        return null;
+    }
+
+    private SplitDTO splitAndSave(AbstractIndexPage page, int pageId) throws IOException {
+        int newPageId = header.getNextFreePageId();
+
+        int promotedKey = page.getPromotionKey();
+
+        var newPage = page.split(pageId, newPageId);
+
+        indexDM.writePage(pageId, page);
+        indexDM.writePage(newPageId, newPage);
+        header.incNextFreePageId();
+
+        return new SplitDTO(promotedKey, newPageId);
     }
 
     public void remove(int key) throws IOException {
@@ -111,12 +158,12 @@ public class IndexManager implements Closeable {
                 nextLeaf.setPreviousPageId(leaf.getPreviousPageId());
 
                 indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
-                indexDM.writePage(leaf.getNextPageId(), nextLeaf.serialize());
-                indexDM.writePage(leaf.getPreviousPageId(), prevLeaf.serialize());
+                indexDM.writePage(leaf.getNextPageId(), nextLeaf);
+                indexDM.writePage(leaf.getPreviousPageId(), prevLeaf);
                 return true;
             }
 
-            indexDM.writePage(pageId, leaf.serialize());
+            indexDM.writePage(pageId, leaf);
             return false;
         }
 
@@ -132,56 +179,9 @@ public class IndexManager implements Closeable {
                 indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
                 return true;
             }
-            indexDM.writePage(pageId, internal.serialize());
+            indexDM.writePage(pageId, internal);
         }
         return false;
-    }
-
-    @Nullable
-    private SplitDTO insertAndSplit(int pageId, int key, RecordId rid) throws IOException {
-        var pageData = indexDM.readPage(pageId);
-
-        if (pageData[0] == IndexPageType.LEAF.get()) {
-            var leaf = IndexLeafPage.deserialize(pageData);
-            leaf.insert(key, rid);
-
-            if (leaf.isFull()) {
-                return splitAndSave(leaf, pageId);
-            }
-
-            indexDM.writePage(pageId, leaf.serialize());
-            return null;
-        }
-
-        var internal = IndexInternalPage.deserialize(pageData);
-        int childPageId = internal.getChildPageId(key);
-
-        var dto = insertAndSplit(childPageId, key, rid);
-
-        if (dto != null) {
-            internal.insertChildPageId(dto.promotedKey(), dto.newPageId());
-
-            if (internal.isFull()) {
-                return splitAndSave(internal, pageId);
-            }
-
-            indexDM.writePage(pageId, internal.serialize());
-        }
-        return null;
-    }
-
-    private SplitDTO splitAndSave(AbstractIndexPage page, int pageId) throws IOException {
-        int newPageId = header.getNextFreePageId();
-
-        int promotedKey = page.getPromotionKey();
-
-        var newPage = page.split(pageId, newPageId);
-
-        indexDM.writePage(pageId, page.serialize());
-        indexDM.writePage(newPageId, newPage.serialize());
-        header.incNextFreePageId();
-
-        return new SplitDTO(promotedKey, newPageId);
     }
 
     private int findChildPageIdInInternalNode(byte[] internalPageData, int key) {
@@ -191,6 +191,7 @@ public class IndexManager implements Closeable {
 
     @Override
     public void close() throws IOException {
+        indexDM.writePage(0, header);
         indexDM.close();
     }
 }

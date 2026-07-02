@@ -1,4 +1,4 @@
-package com.mtlk.mtlkdb.core.persistence.record;
+package com.mtlk.mtlkdb.core.persistence;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,6 +30,10 @@ public class DiskManager implements Closeable {
 
         dbFile.seek(offset);
         dbFile.write(pageData);
+    }
+
+    public void writePage(int pageId, SerializablePage page) throws IOException {
+        writePage(pageId, page.serialize());
     }
 
     public long getFileSize() {
