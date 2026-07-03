@@ -37,8 +37,8 @@ public class CLITest {
                 }
 
                 @Override
-                public int insertRow(String tableName, RawRow row) {
-                    return 1;
+                public boolean insertRow(String tableName, RawRow row) {
+                    return true;
                 }
 
                 @Override

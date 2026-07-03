@@ -1,4 +1,4 @@
-package persistence;
+package persistence.index;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;

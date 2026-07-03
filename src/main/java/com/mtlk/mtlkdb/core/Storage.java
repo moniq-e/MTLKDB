@@ -29,6 +29,7 @@ private HashMap<String, Table> tables;
         if (!tables.containsKey(tableName)) {
             try {
                 var newTableFolder = new File(root, "table_" + tableName);
+                newTableFolder.mkdir();
                 tables.put(tableName, new Table(tableName, newTableFolder));
                 return true;
             } catch (IOException e) {
@@ -43,19 +44,20 @@ private HashMap<String, Table> tables;
         throw new UnsupportedOperationException("Unimplemented method 'createDatabase'");
     }
 
-    public int insertRow(String tableName, RawRow row) {
+    public boolean insertRow(String tableName, RawRow row) {
         var table = findTable(tableName);
         try {
             return table.insert(row);
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return false;
         }
     }
 
+    //TODO estudar bulk insert
     public int insertRows(String tableName, RawRow[] rows) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'insertRows'");
+        var table = findTable(tableName);
+        return table.insert(rows);
     }
 
     public boolean deleteRow(String tableName, String primaryKey) {
@@ -69,8 +71,13 @@ private HashMap<String, Table> tables;
     }
 
     public int deleteRows(String tableName, String[] primaryKey) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteRows'");
+        var table = findTable(tableName);
+        try {
+            return table.deleteRows(primaryKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public RawRow[] select(String tableName, String[] columns, Expression expression) {

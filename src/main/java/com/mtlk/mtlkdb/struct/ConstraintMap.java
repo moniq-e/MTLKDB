@@ -15,7 +15,7 @@ public class ConstraintMap {
     }
 
     public static ConstraintMap from(String constraintType, @Nullable Object value) {
-        var type = ConstraintType.valueOf(constraintType);
+        var type = ConstraintType.valueOf(constraintType.toUpperCase());
 
         switch (type) {
             case PRIMARY:

@@ -52,16 +52,16 @@ public class BufferPool implements Closeable {
             markOccupied(freeFrame);
             frameToPageId[freeFrame] = pageId;
 
-            readFromDiskToMemory(pageId);
+            readFromDiskToMemory(pageId, freeFrame);
             frameMan.update(freeFrame);
-            return extractPage(pageId);
+            return extractPage(freeFrame);
         }
 
         var lruFrame = frameMan.getLRU();
         var lruPageId = frameToPageId[lruFrame];
 
         if (checkDirty(lruFrame)) {
-            diskManager.writePage(lruPageId, readFromMemory(lruPageId));
+            diskManager.writePage(lruPageId, readFromMemory(lruFrame));
 
             unmarkDirty(lruFrame);
             unmarkOccupied(lruFrame);
@@ -77,7 +77,7 @@ public class BufferPool implements Closeable {
         }
 
         if (frameId < frameToPageId.length) {
-            writeToMemory(page.getId(), page.serialize());
+            writeToMemory(frameId, page.serialize());
             markDirty(frameId);
         } else {
             diskManager.writePage(page.getId(), page);
@@ -110,22 +110,22 @@ public class BufferPool implements Closeable {
         return (int) Math.ceil(fileSize / (double) PAGE_SIZE);
     }
 
-    private RecordPage extractPage(int pageId) {
-        return RecordPage.deserialize(pageId, readFromMemory(pageId));
+    private RecordPage extractPage(int frameId) {
+        return RecordPage.deserialize(frameId, readFromMemory(frameId));
     }
 
-    private byte[] readFromMemory(int pageId) {
-        var index = pageId * PAGE_SIZE;
+    private byte[] readFromMemory(int frameId) {
+        var index = frameId * PAGE_SIZE;
         return Arrays.copyOfRange(memory, index, index + PAGE_SIZE);
     }
 
-    private void writeToMemory(int pageId, byte[] data) {
-        System.arraycopy(data, 0, memory, pageId * PAGE_SIZE, PAGE_SIZE);
+    private void writeToMemory(int frameId, byte[] data) {
+        System.arraycopy(data, 0, memory, frameId * PAGE_SIZE, PAGE_SIZE);
     }
 
-    private void readFromDiskToMemory(int pageId) throws IOException {
+    private void readFromDiskToMemory(int pageId, int frameId) throws IOException {
         var data = diskManager.readPage(pageId);
-        writeToMemory(pageId, data);
+        writeToMemory(frameId, data);
     }
 
     private boolean checkOccupied(int frameId) {
@@ -154,6 +154,9 @@ public class BufferPool implements Closeable {
 
     @Override
     public void close() throws IOException {
+        for (int i = 0; i < NUM_PAGES; i++) {
+            diskManager.writePage(frameToPageId[i], readFromMemory(i));
+        }
         diskManager.close();
     }
 }

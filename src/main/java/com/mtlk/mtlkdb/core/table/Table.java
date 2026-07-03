@@ -5,6 +5,7 @@ import static com.mtlk.mtlkdb.core.persistence.record.RecordPage.VARCHAR_SIZE_BY
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.mtlk.mtlkdb.core.persistence.index.IndexManager;
@@ -59,6 +60,36 @@ public class Table {
         return true;
     }
 
+    public int deleteRows(String[] primaryKeys) throws IOException {
+        var type = schema.getPrimaryKey().columnType();
+
+        if (type != ColumnType.INT) return 0;
+
+        var rids = new HashMap<Integer, ArrayList<Integer>>(primaryKeys.length);
+
+        for (int i = 0; i < primaryKeys.length; i++) {
+            var value = Integer.parseInt(primaryKeys[i]);
+
+            var rid = indexManager.search(value);
+            if (rid != null) {
+                var slots = rids.get(rid.pageId());
+                if (slots == null) slots = new ArrayList<>();
+                slots.add(rid.slotId());
+            }
+        }
+
+        int count = 0;
+        for (int pageId : rids.keySet()) {
+            var page = pages.getPage(pageId);
+            for (int slotId : rids.get(pageId)) {
+                page.removeRecord(slotId);
+                count++;
+            }
+            pages.writePage(page);
+        }
+        return count;
+    }
+
     public RawRow[] select(String[] columns, Expression expression) throws IOException {
         List<RecordId> ridsToFetch = new ArrayList<>();
         var resultRows = new ArrayList<RawRow>();
@@ -106,14 +137,27 @@ public class Table {
         return resultRows.toArray(RawRow[]::new);
     }
 
-    public int insert(RawRow row) throws IOException {
+    public boolean insert(RawRow row) throws IOException {
         var rid = pages.insertRecord(row.serialize());
 
         var pk = schema.getPrimaryKey();
-        if (pk.columnType() != ColumnType.INT) return 1;
+        if (pk.columnType() == ColumnType.INT) {
+            indexManager.insert(Encoder.decodeInt(row.getValue(pk.name())), rid);
+        }
+        return true;
+    }
 
-        indexManager.insert(Encoder.decodeInt(row.getValue(pk.name())), rid);
-        return 1;
+    public int insert(RawRow[] rows) {
+        var count = 0;
+
+        for (int i = 0; i < rows.length; i++) {
+            try {
+                if (insert(rows[i])) count++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return count;
     }
 
     public RawRow deserializeRow(byte[] record) {

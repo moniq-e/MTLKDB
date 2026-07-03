@@ -49,7 +49,7 @@ public class InsertQuery {
 
         if (values.size() == 1) {
             RawRow row = new RawRow(columns, RawRowEncoder.encodeValues(values.get(0)));
-            return storage.insertRow(tableName, row);
+            return storage.insertRow(tableName, row) ? 1 : 0;
         } else {
             var rows = values.stream()
                 .map(vals -> new RawRow(columns, RawRowEncoder.encodeValues(vals)))
