@@ -77,14 +77,13 @@ public class IndexManager implements Closeable {
         var dto = insertAndSplit(rootPageId, key, rid);
 
         if (dto != null) {
-            int newRootPageId = header.getNextFreePageId();
+            int newRootPageId = allocatePage();
             var newRoot = new IndexInternalPage(rootPageId);
 
             newRoot.insertChildPageId(dto.promotedKey(), dto.newPageId());
 
             indexDM.writePage(newRootPageId, newRoot);
             header.setRootPageId(newRootPageId);
-            header.incNextFreePageId();
         }
 
         indexDM.writePage(0, header);
@@ -124,7 +123,7 @@ public class IndexManager implements Closeable {
     }
 
     private SplitDTO splitAndSave(AbstractIndexPage page, int pageId) throws IOException {
-        int newPageId = header.getNextFreePageId();
+        int newPageId = allocatePage();
 
         int promotedKey = page.getPromotionKey();
 
@@ -132,7 +131,6 @@ public class IndexManager implements Closeable {
 
         indexDM.writePage(pageId, page);
         indexDM.writePage(newPageId, newPage);
-        header.incNextFreePageId();
 
         return new SplitDTO(promotedKey, newPageId);
     }
@@ -157,7 +155,7 @@ public class IndexManager implements Closeable {
                 prevLeaf.setNextPageId(leaf.getNextPageId());
                 nextLeaf.setPreviousPageId(leaf.getPreviousPageId());
 
-                indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
+                freePage(pageId);
                 indexDM.writePage(leaf.getNextPageId(), nextLeaf);
                 indexDM.writePage(leaf.getPreviousPageId(), prevLeaf);
                 return true;
@@ -176,7 +174,7 @@ public class IndexManager implements Closeable {
             internal.removeChildPageId(key);
 
             if (internal.isEmpty()) {
-                indexDM.writePage(pageId, ByteArray.EMPTY_PAGE);
+                freePage(pageId);
                 return true;
             }
             indexDM.writePage(pageId, internal);
@@ -187,6 +185,30 @@ public class IndexManager implements Closeable {
     private int findChildPageIdInInternalNode(byte[] internalPageData, int key) {
         var internalPage = IndexInternalPage.deserialize(internalPageData);
         return internalPage.getChildPageId(key);
+    }
+
+    private void freePage(int pageId) throws IOException {
+        var bytes = ByteArray.allocate(PAGE_SIZE);
+
+        bytes.putInt(header.getFreePageHead());
+        header.setFreePageHead(pageId);
+
+        indexDM.writePage(pageId, bytes.toArray());
+    }
+
+    private int allocatePage() throws IOException {
+        var freePageId = header.getFreePageHead();
+
+        if (freePageId <= -1) {
+            freePageId = header.getNextFreePageId();
+            header.incNextFreePageId();
+            return freePageId;
+        }
+
+        var bytes = new ByteArray(indexDM.readPage(freePageId));
+        header.setNextFreePageId(bytes.getInt());
+
+        return freePageId;
     }
 
     @Override

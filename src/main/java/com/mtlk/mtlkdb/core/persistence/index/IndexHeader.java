@@ -9,10 +9,12 @@ public class IndexHeader implements SerializablePage {
     private static final byte HEADER_BYTE = 'M';
 
     private int rootPageId;
+    private int freePageHead;
     private int nextFreePageId;
 
     private IndexHeader() {
         rootPageId = 1;
+        freePageHead = -1;
         nextFreePageId = 2;
     }
 
@@ -24,6 +26,7 @@ public class IndexHeader implements SerializablePage {
 
         if (hb == HEADER_BYTE) {
             header.setRootPageId(buffer.getInt());
+            header.setFreePageHead(buffer.getInt());
             header.setNextFreePageId(buffer.getInt());
         }
 
@@ -36,6 +39,7 @@ public class IndexHeader implements SerializablePage {
 
         buffer.put(HEADER_BYTE);
         buffer.putInt(getRootPageId());
+        buffer.putInt(getFreePageHead());
         buffer.putInt(getNextFreePageId());
 
         return buffer.toArray();
@@ -47,6 +51,14 @@ public class IndexHeader implements SerializablePage {
 
     public void setRootPageId(int rootPageId) {
         this.rootPageId = rootPageId;
+    }
+
+    public int getFreePageHead() {
+        return freePageHead;
+    }
+
+    public void setFreePageHead(int freePageHead) {
+        this.freePageHead = freePageHead;
     }
 
     public int getNextFreePageId() {
