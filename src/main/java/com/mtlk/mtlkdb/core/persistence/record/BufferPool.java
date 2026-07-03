@@ -1,12 +1,14 @@
 package com.mtlk.mtlkdb.core.persistence.record;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 
 import com.mtlk.mtlkdb.core.persistence.DiskManager;
 import com.mtlk.mtlkdb.struct.FrameUsage;
+import com.mtlk.mtlkdb.struct.RecordId;
 
-public class BufferPool {
+public class BufferPool implements Closeable {
     private static final int PAGE_SIZE = DiskManager.PAGE_SIZE;
     private static final int NUM_PAGES = 16;
 
@@ -82,6 +84,26 @@ public class BufferPool {
         }
     }
 
+    public RecordId insertRecord(byte[] record) throws IOException {
+        var totalPages = getTotalPages();
+
+        for (int i = 0; i < totalPages; i++) {
+            var page = RecordPage.deserialize(i, diskManager.readPage(i));
+
+            int slotId = page.insertRecord(record);
+            if (slotId != -1) {
+                diskManager.writePage(i, page.serialize());
+                return new RecordId(i, slotId);
+            }
+        }
+
+        var newPage = new RecordPage(totalPages);
+        int slotId = newPage.insertRecord(record);
+
+        diskManager.writePage(newPage.getId(), newPage.serialize());
+        return new RecordId(newPage.getId(), slotId);
+    }
+
     public int getTotalPages() {
         var fileSize = diskManager.getFileSize();
         if (fileSize <= 0) return 0;
@@ -128,5 +150,10 @@ public class BufferPool {
 
     private void unmarkDirty(int frameId) {
         dirtyFlags &= ~(1 << frameId);
+    }
+
+    @Override
+    public void close() throws IOException {
+        diskManager.close();
     }
 }

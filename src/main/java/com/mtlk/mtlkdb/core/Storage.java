@@ -44,8 +44,13 @@ private HashMap<String, Table> tables;
     }
 
     public int insertRow(String tableName, RawRow row) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'insertRow'");
+        var table = findTable(tableName);
+        try {
+            return table.insert(row);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public int insertRows(String tableName, RawRow[] rows) {

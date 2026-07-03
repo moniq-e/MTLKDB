@@ -14,6 +14,7 @@ import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.RecordId;
 import com.mtlk.mtlkdb.struct.util.ArrayAsCollection;
+import com.mtlk.mtlkdb.struct.util.Encoder;
 
 public class Table {
     private String tableName;
@@ -103,6 +104,16 @@ public class Table {
         }
 
         return resultRows.toArray(RawRow[]::new);
+    }
+
+    public int insert(RawRow row) throws IOException {
+        var rid = pages.insertRecord(row.serialize());
+
+        var pk = schema.getPrimaryKey();
+        if (pk.columnType() != ColumnType.INT) return 1;
+
+        indexManager.insert(Encoder.decodeInt(row.getValue(pk.name())), rid);
+        return 1;
     }
 
     public RawRow deserializeRow(byte[] record) {

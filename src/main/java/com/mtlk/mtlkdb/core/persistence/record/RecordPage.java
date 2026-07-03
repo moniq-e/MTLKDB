@@ -21,7 +21,7 @@ public class RecordPage implements SerializablePage {
     private ArrayList<Short> header;
     private ArrayList<byte[]> records;
 
-    private RecordPage(int pageId) {
+    protected RecordPage(int pageId) {
         this.id = pageId;
         this.header = new ArrayList<>();
         this.records = new ArrayList<>();
