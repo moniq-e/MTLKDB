@@ -2,6 +2,7 @@ package com.mtlk.mtlkdb.core.persistence.index;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import org.jetbrains.annotations.Nullable;
@@ -18,8 +19,8 @@ public class IndexManager implements Closeable {
     private DiskManager indexDM;
     private IndexHeader header;
 
-    public IndexManager(String indexFileName) throws IOException {
-        this.indexDM = new DiskManager(indexFileName);
+    public IndexManager(Path path) throws IOException {
+        this.indexDM = new DiskManager(path);
         this.header = IndexHeader.deserialize(indexDM.readPage(0));
     }
 

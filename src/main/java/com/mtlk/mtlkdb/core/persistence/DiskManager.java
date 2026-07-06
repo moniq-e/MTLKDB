@@ -3,13 +3,14 @@ package com.mtlk.mtlkdb.core.persistence;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Path;
 
 public class DiskManager implements Closeable {
     public static final int PAGE_SIZE = 4096;
     private RandomAccessFile dbFile;
 
-    public DiskManager(String fileName) throws IOException {
-        dbFile = new RandomAccessFile("./" + fileName, "rw");
+    public DiskManager(Path path) throws IOException {
+        dbFile = new RandomAccessFile(path.toString(), "rw");
     }
 
     public byte[] readPage(int pageId) throws IOException {

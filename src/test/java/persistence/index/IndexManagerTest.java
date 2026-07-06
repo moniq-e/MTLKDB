@@ -22,9 +22,8 @@ public class IndexManagerTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        var fileName = "index-" + UUID.randomUUID() + ".idx";
-        indexPath = Path.of(fileName);
-        indexManager = new IndexManager(fileName);
+        indexPath = Path.of("index-" + UUID.randomUUID() + ".idx");
+        indexManager = new IndexManager(indexPath);
     }
 
     @AfterEach

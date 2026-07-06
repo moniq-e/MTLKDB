@@ -2,6 +2,7 @@ package com.mtlk.mtlkdb.core.persistence.record;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import com.mtlk.mtlkdb.core.persistence.DiskManager;
@@ -21,8 +22,8 @@ public class BufferPool implements Closeable {
     private FrameUsage frameMan;
     private DiskManager diskManager;
 
-    public BufferPool(String fileName) throws IOException {
-        this.diskManager = new DiskManager(fileName);
+    public BufferPool(Path path) throws IOException {
+        this.diskManager = new DiskManager(path);
         this.frameMan = new FrameUsage(NUM_PAGES);
         this.memory = new byte[PAGE_SIZE * NUM_PAGES];
         this.frameToPageId = new int[NUM_PAGES];
@@ -155,6 +156,7 @@ public class BufferPool implements Closeable {
     @Override
     public void close() throws IOException {
         for (int i = 0; i < NUM_PAGES; i++) {
+            if (!checkOccupied(i)) continue;
             diskManager.writePage(frameToPageId[i], readFromMemory(i));
         }
         diskManager.close();

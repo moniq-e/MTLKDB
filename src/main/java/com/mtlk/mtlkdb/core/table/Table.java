@@ -2,8 +2,10 @@ package com.mtlk.mtlkdb.core.table;
 
 import static com.mtlk.mtlkdb.core.persistence.record.RecordPage.VARCHAR_SIZE_BYTES;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +19,7 @@ import com.mtlk.mtlkdb.struct.RecordId;
 import com.mtlk.mtlkdb.struct.util.ArrayAsCollection;
 import com.mtlk.mtlkdb.struct.util.Encoder;
 
-public class Table {
+public class Table implements Closeable {
     private String tableName;
     private File tableFolder;
     private TableSchema schema;
@@ -28,13 +30,13 @@ public class Table {
         this.tableName = tableName;
         this.tableFolder = tableFolder;
         readColumnDefinition();
-        pages = new BufferPool(tableName + ".dat");
-        indexManager = new IndexManager(tableName + ".idx");
+        pages = new BufferPool(Path.of(tableFolder.toString(), tableName + ".dat"));
+        indexManager = new IndexManager(Path.of(tableFolder.toString(), tableName + ".idx"));
     }
 
     private void readColumnDefinition() throws IOException {
-        var files = tableFolder.listFiles((d, f) -> f.endsWith(".schema"));
-        if (files.length < 1) throw new IOException(tableName + " .schema file can't be found.");
+        var files = tableFolder.listFiles((d, f) -> f.endsWith("-schema.json"));
+        if (files.length < 1) throw new IOException(tableName + " schema file can't be found.");
 
         schema = new TableSchema(files[0]);
     }
@@ -178,5 +180,11 @@ public class Table {
             }
         }
         return new RawRow(schema.getColumnNames(), rowData);
+    }
+
+    @Override
+    public void close() throws IOException {
+        indexManager.close();
+        pages.close();
     }
 }

@@ -65,8 +65,15 @@ public class RecordPage implements SerializablePage {
         return records.get(slotId);
     }
 
+    //TODO: mudar pra inserção no fim da pagina
     public int insertRecord(byte[] record) {
-        var nextFreePos = header.getLast() + records.getLast().length;
+        int nextFreePos;
+
+        if (header.isEmpty()) {
+            nextFreePos = HEADER_SIZE_BYTES + HEADER_SLOT_SIZE_BYTES;
+        } else {
+            nextFreePos = header.getLast() + records.getLast().length;
+        }
 
         if (record.length > PAGE_SIZE - nextFreePos) return -1;
 

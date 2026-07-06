@@ -33,6 +33,7 @@ private HashMap<String, Table> tables;
                 tables.put(tableName, new Table(tableName, newTableFolder));
                 return true;
             } catch (IOException e) {
+                e.printStackTrace();
                 return false;
             }
         }
@@ -95,5 +96,13 @@ private HashMap<String, Table> tables;
             throw new IllegalArgumentException("Could not find "+tableName+" table.");
         }
         return tables.get(tableName);
+    }
+
+    public void closeTable(String tableName) {
+        try {
+            findTable(tableName).close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
