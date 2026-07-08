@@ -38,7 +38,7 @@ public class TableSchema {
 
         columnNames = new String[columnsJson.length()];
         columns = new HashMap<>(columnsJson.length());
-        for (int i = 0; i < columns.size(); i++) {
+        for (int i = 0; i < columnsJson.length(); i++) {
             var jsonColumn = columnsJson.getJSONObject(i);
 
             var name = jsonColumn.getString("name");
