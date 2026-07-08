@@ -168,13 +168,14 @@ public class Table implements Closeable {
         int k = 0;
         for (int i = 0; i < schema.size(); i++) {
             var colType = schema.get(i).columnType();
-
+            
             if (colType.isVarchar()) {
                 var varsize = (record[k] << 8) | record[k + 1];
-
+                
                 System.arraycopy(record, k + VARCHAR_SIZE_BYTES, rowData[i], 0, varsize);
                 k += VARCHAR_SIZE_BYTES + varsize;
             } else {
+                rowData[i] = new byte[colType.getSize()];
                 System.arraycopy(record, k, rowData[i], 0, colType.getSize());
                 k += colType.getSize();
             }

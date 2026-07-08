@@ -1,5 +1,7 @@
 package com.mtlk.mtlkdb.struct;
 
+import java.util.Arrays;
+
 import org.jetbrains.annotations.Nullable;
 
 public class RawRow {
@@ -46,5 +48,17 @@ public class RawRow {
 
     public byte[][] getValues() {
         return values;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+
+        var other = (RawRow) obj;
+        if (!Arrays.equals(columns, other.columns)) return false;
+        if (!Arrays.deepEquals(values, other.values)) return false;
+        return true;
     }
 }

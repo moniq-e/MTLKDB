@@ -24,9 +24,7 @@ public class ByteArray {
     public void put(byte[] value, int index) {
         checkOpen();
 
-        var bIdx = idx;
         System.arraycopy(value, 0, byteArr, index, value.length);
-        idx = bIdx;
     }
 
     public void put(byte value) {

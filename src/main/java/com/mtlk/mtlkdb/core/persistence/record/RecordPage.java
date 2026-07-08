@@ -41,7 +41,7 @@ public class RecordPage implements SerializablePage {
             int recordSize = Encoder.decodeInt(Arrays.copyOfRange(data, realPos, realPos + RECORD_SIZE_BYTES));
             int recordStart = realPos + RECORD_SIZE_BYTES;
 
-            page.records.add(Arrays.copyOfRange(data, recordStart, recordSize));
+            page.records.add(Arrays.copyOfRange(data, recordStart, recordStart + recordSize));
         }
         return page;
     }
@@ -55,7 +55,10 @@ public class RecordPage implements SerializablePage {
         for (int i = 0; i < header.size(); i++) {
             var realPos = header.get(i);
             buffer.putShort(realPos);
-            buffer.put(records.get(i), realPos);
+
+            var record = records.get(i);
+            buffer.put(Encoder.encodeInt(record.length), realPos);
+            buffer.put(record, realPos + RECORD_SIZE_BYTES);
         }
 
         return buffer.toArray();

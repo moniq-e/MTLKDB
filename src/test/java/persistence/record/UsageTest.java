@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +28,16 @@ import com.mtlk.mtlkdb.struct.value.LiteralValue;
 public class UsageTest {
     private Storage storage;
 
+    @BeforeAll
+    public static void init() throws IOException {
+        Files.deleteIfExists(Path.of("./table_test/test-schema.json"));
+        Files.deleteIfExists(Path.of("./table_test/test.idx"));
+        Files.deleteIfExists(Path.of("./table_test/test.dat"));
+        Files.deleteIfExists(Path.of("./table_test"));
+    }
+
     @BeforeEach
-    public void init() throws IOException {
+    public void setup() throws IOException {
         storage = new Storage();
         createTestSchema();
     }
@@ -36,10 +45,10 @@ public class UsageTest {
     @AfterEach
     public void destroy() throws IOException {
         storage.closeTable("test");
-        Files.delete(Path.of("./table_test/test-schema.json"));
-        Files.delete(Path.of("./table_test/test.idx"));
-        Files.delete(Path.of("./table_test/test.dat"));
-        Files.delete(Path.of("./table_test"));
+        Files.deleteIfExists(Path.of("./table_test/test-schema.json"));
+        Files.deleteIfExists(Path.of("./table_test/test.idx"));
+        Files.deleteIfExists(Path.of("./table_test/test.dat"));
+        Files.deleteIfExists(Path.of("./table_test"));
     }
 
     @Test
@@ -48,7 +57,7 @@ public class UsageTest {
     }
 
     @Test
-    public void testInsert() {
+    public void testInsertAndSelect() {
         createTestTable();
 
         assertEquals(1, QueryBuilder.insert(storage)
@@ -60,7 +69,7 @@ public class UsageTest {
         assertEquals(new RawRow(new String[] { "a" }, RawRowEncoder.encodeValues(new String[] { "1" })), QueryBuilder.select(storage)
             .from("test")
             .where(new Equals(new ColumnValue("a"), new LiteralValue("1")))
-            .execute());
+            .execute()[0]);
     }
 
     private void createTestSchema() throws IOException {
