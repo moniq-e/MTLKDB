@@ -20,20 +20,17 @@ import com.mtlk.mtlkdb.expression.Equals;
 import com.mtlk.mtlkdb.struct.ColumnDefinition;
 import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.ConstraintMap;
-import com.mtlk.mtlkdb.struct.RawRow;
-import com.mtlk.mtlkdb.struct.util.RawRowEncoder;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRowEncoder;
 import com.mtlk.mtlkdb.struct.value.ColumnValue;
 import com.mtlk.mtlkdb.struct.value.LiteralValue;
 
 public class UsageTest {
-    private Storage storage;
+    private static Storage storage;
 
     @BeforeAll
     public static void init() throws IOException {
-        Files.deleteIfExists(Path.of("./table_test/test-schema.json"));
-        Files.deleteIfExists(Path.of("./table_test/test.idx"));
-        Files.deleteIfExists(Path.of("./table_test/test.dat"));
-        Files.deleteIfExists(Path.of("./table_test"));
+        deleteFiles();
     }
 
     @BeforeEach
@@ -45,10 +42,7 @@ public class UsageTest {
     @AfterEach
     public void destroy() throws IOException {
         storage.closeTable("test");
-        Files.deleteIfExists(Path.of("./table_test/test-schema.json"));
-        Files.deleteIfExists(Path.of("./table_test/test.idx"));
-        Files.deleteIfExists(Path.of("./table_test/test.dat"));
-        Files.deleteIfExists(Path.of("./table_test"));
+        deleteFiles();
     }
 
     @Test
@@ -98,5 +92,12 @@ public class UsageTest {
             new ColumnDefinition("id", ColumnType.INT, new ConstraintMap[] { ConstraintMap.PRIMARY() })
         };
         return storage.createTable("test", columns);
+    }
+
+    private static void deleteFiles() throws IOException {
+        Files.deleteIfExists(Path.of("./table_test/test-schema.json"));
+        Files.deleteIfExists(Path.of("./table_test/test.idx"));
+        Files.deleteIfExists(Path.of("./table_test/test.dat"));
+        Files.deleteIfExists(Path.of("./table_test"));
     }
 }

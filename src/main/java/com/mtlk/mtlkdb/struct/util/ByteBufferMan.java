@@ -4,21 +4,21 @@ import java.util.Arrays;
 
 import com.mtlk.mtlkdb.core.persistence.DiskManager;
 
-public class ByteArray {
+public class ByteBufferMan {
     public static final byte[] EMPTY_PAGE = new byte[DiskManager.PAGE_SIZE];
 
     private byte[] byteArr;
     private int idx;
     private boolean isOpen;
 
-    public ByteArray(byte[] byteArr) {
+    public ByteBufferMan(byte[] byteArr) {
         this.byteArr = byteArr;
         idx = 0;
         isOpen = true;
     }
 
-    public static ByteArray allocate(int size) {
-        return new ByteArray(new byte[size]);
+    public static ByteBufferMan allocate(int size) {
+        return new ByteBufferMan(new byte[size]);
     }
 
     public void put(byte[] value, int index) {

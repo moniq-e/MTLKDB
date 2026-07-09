@@ -2,7 +2,7 @@ package com.mtlk.mtlkdb.struct.value;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 
 public class ColumnValue extends LiteralValue {
     private String columnName;

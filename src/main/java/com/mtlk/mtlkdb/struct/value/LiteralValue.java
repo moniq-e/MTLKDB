@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRowEncoder;
 import com.mtlk.mtlkdb.struct.util.Encoder;
-import com.mtlk.mtlkdb.struct.util.RawRowEncoder;
 
 public class LiteralValue implements Comparable<LiteralValue> {
     private byte[] buffer;

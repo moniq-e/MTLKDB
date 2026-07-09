@@ -11,7 +11,7 @@ import com.mtlk.mtlkdb.core.persistence.DiskManager;
 import com.mtlk.mtlkdb.dto.SplitDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
-import com.mtlk.mtlkdb.struct.util.ByteArray;
+import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 
 public class IndexManager implements Closeable {
     public static final int PAGE_SIZE = 4096;
@@ -189,7 +189,7 @@ public class IndexManager implements Closeable {
     }
 
     private void freePage(int pageId) throws IOException {
-        var bytes = ByteArray.allocate(PAGE_SIZE);
+        var bytes = ByteBufferMan.allocate(PAGE_SIZE);
 
         bytes.putInt(header.getFreePageHead());
         header.setFreePageHead(pageId);
@@ -206,7 +206,7 @@ public class IndexManager implements Closeable {
             return freePageId;
         }
 
-        var bytes = new ByteArray(indexDM.readPage(freePageId));
+        var bytes = new ByteBufferMan(indexDM.readPage(freePageId));
         header.setNextFreePageId(bytes.getInt());
 
         return freePageId;

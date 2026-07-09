@@ -7,7 +7,7 @@ import java.util.HashMap;
 import com.mtlk.mtlkdb.core.table.Table;
 import com.mtlk.mtlkdb.expression.Expression;
 import com.mtlk.mtlkdb.struct.ColumnDefinition;
-import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 
 public class Storage {
 private HashMap<String, Table> tables;

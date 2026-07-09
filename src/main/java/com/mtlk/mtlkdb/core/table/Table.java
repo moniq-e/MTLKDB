@@ -14,8 +14,8 @@ import com.mtlk.mtlkdb.core.persistence.index.IndexManager;
 import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
 import com.mtlk.mtlkdb.expression.Expression;
 import com.mtlk.mtlkdb.struct.ColumnType;
-import com.mtlk.mtlkdb.struct.RawRow;
 import com.mtlk.mtlkdb.struct.RecordId;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 import com.mtlk.mtlkdb.struct.util.ArrayAsCollection;
 import com.mtlk.mtlkdb.struct.util.Encoder;
 

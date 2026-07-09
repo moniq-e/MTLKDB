@@ -4,7 +4,7 @@ import com.mtlk.mtlkdb.core.Storage;
 import com.mtlk.mtlkdb.expression.And;
 import com.mtlk.mtlkdb.expression.Expression;
 import com.mtlk.mtlkdb.expression.Or;
-import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 
 public class SelectQuery {
     private Storage storage;

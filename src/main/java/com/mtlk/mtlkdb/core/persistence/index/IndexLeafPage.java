@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import com.mtlk.mtlkdb.dto.RecordIdsDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
-import com.mtlk.mtlkdb.struct.util.ByteArray;
+import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
 public class IndexLeafPage extends AbstractIndexPage {
@@ -41,7 +41,7 @@ public class IndexLeafPage extends AbstractIndexPage {
 
     @Override
     public byte[] serialize() {
-        var buffer = ByteArray.allocate(PAGE_SIZE);
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
 
         buffer.put(IndexPageType.LEAF.get());
         buffer.put(HEADER_BYTE);
@@ -60,7 +60,7 @@ public class IndexLeafPage extends AbstractIndexPage {
 
     @Nullable
     public static IndexLeafPage deserialize(byte[] pageData) {
-        var buffer = new ByteArray(pageData);
+        var buffer = new ByteBufferMan(pageData);
 
         var type = buffer.get();
         if (type != IndexPageType.LEAF.get()) return null;

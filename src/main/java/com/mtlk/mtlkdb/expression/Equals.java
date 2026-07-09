@@ -1,7 +1,7 @@
 package com.mtlk.mtlkdb.expression;
 
 import com.mtlk.mtlkdb.core.table.TableSchema;
-import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 import com.mtlk.mtlkdb.struct.util.ScanRange;
 import com.mtlk.mtlkdb.struct.value.ColumnValue;
 import com.mtlk.mtlkdb.struct.value.LiteralValue;

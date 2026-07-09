@@ -13,7 +13,7 @@ import com.mtlk.mtlkdb.expression.GreaterThan;
 import com.mtlk.mtlkdb.struct.ColumnDefinition;
 import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.ConstraintMap;
-import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 import com.mtlk.mtlkdb.struct.value.ColumnValue;
 import com.mtlk.mtlkdb.struct.value.LiteralValue;
 

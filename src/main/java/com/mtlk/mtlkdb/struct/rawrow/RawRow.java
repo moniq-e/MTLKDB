@@ -1,4 +1,4 @@
-package com.mtlk.mtlkdb.struct;
+package com.mtlk.mtlkdb.struct.rawrow;
 
 import java.util.Arrays;
 

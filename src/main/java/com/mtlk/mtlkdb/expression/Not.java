@@ -1,9 +1,7 @@
 package com.mtlk.mtlkdb.expression;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.mtlk.mtlkdb.core.table.TableSchema;
-import com.mtlk.mtlkdb.struct.RawRow;
+import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 import com.mtlk.mtlkdb.struct.util.ScanRange;
 
 public record Not(Expression expression) implements Expression {
@@ -19,7 +17,6 @@ public record Not(Expression expression) implements Expression {
     }
 
     @Override
-    @Nullable
     public ScanRange getScanRange() {
         return expression.getScanRange();
     }

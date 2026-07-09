@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.mtlk.mtlkdb.core.persistence.SerializablePage;
-import com.mtlk.mtlkdb.struct.util.ByteArray;
+import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 import com.mtlk.mtlkdb.struct.util.Encoder;
 
 public class RecordPage implements SerializablePage {
@@ -48,7 +48,7 @@ public class RecordPage implements SerializablePage {
 
     @Override
     public byte[] serialize() {
-        var buffer = ByteArray.allocate(PAGE_SIZE);
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
 
         buffer.putShort(header.size());
 

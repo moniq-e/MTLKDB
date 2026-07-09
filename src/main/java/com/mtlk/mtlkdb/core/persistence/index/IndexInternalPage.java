@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import com.mtlk.mtlkdb.struct.IndexPageType;
-import com.mtlk.mtlkdb.struct.util.ByteArray;
+import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 
 public class IndexInternalPage extends AbstractIndexPage {
     private static final int HEADER_SIZE = 1 + 4;
@@ -24,7 +24,7 @@ public class IndexInternalPage extends AbstractIndexPage {
     }
 
     public byte[] serialize() {
-        var buffer = ByteArray.allocate(PAGE_SIZE);
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
         
         buffer.put(IndexPageType.INTERNAL.get());
         buffer.putInt(keys.size());
@@ -41,7 +41,7 @@ public class IndexInternalPage extends AbstractIndexPage {
 
     @Nullable
     public static IndexInternalPage deserialize(byte[] pageData) {
-        var buffer = new ByteArray(pageData);
+        var buffer = new ByteBufferMan(pageData);
         
         var type = buffer.get();
         if (type != IndexPageType.INTERNAL.get()) return null;
@@ -87,7 +87,7 @@ public class IndexInternalPage extends AbstractIndexPage {
 
     @Override
     public AbstractIndexPage split(int _thisPageId, int _newPageId) {
-        var newPageBuffer = ByteArray.allocate(PAGE_SIZE);
+        var newPageBuffer = ByteBufferMan.allocate(PAGE_SIZE);
 
         var mid = Math.ceilDiv(keys.size(), 2);
 

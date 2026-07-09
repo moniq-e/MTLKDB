@@ -3,7 +3,7 @@ package com.mtlk.mtlkdb.core.persistence.index;
 import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
 
 import com.mtlk.mtlkdb.core.persistence.SerializablePage;
-import com.mtlk.mtlkdb.struct.util.ByteArray;
+import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 
 public class IndexHeader implements SerializablePage {
     private static final byte HEADER_BYTE = 'M';
@@ -19,7 +19,7 @@ public class IndexHeader implements SerializablePage {
     }
 
     public static IndexHeader deserialize(byte[] data) {
-        var buffer = new ByteArray(data);
+        var buffer = new ByteBufferMan(data);
         var header = new IndexHeader();
 
         var hb = buffer.get();
@@ -35,7 +35,7 @@ public class IndexHeader implements SerializablePage {
 
     @Override
     public byte[] serialize() {
-        var buffer = ByteArray.allocate(PAGE_SIZE);
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
 
         buffer.put(HEADER_BYTE);
         buffer.putInt(getRootPageId());

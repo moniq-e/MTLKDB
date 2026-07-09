@@ -1,6 +1,8 @@
-package com.mtlk.mtlkdb.struct.util;
+package com.mtlk.mtlkdb.struct.rawrow;
 
 import org.jetbrains.annotations.Nullable;
+
+import com.mtlk.mtlkdb.struct.util.Encoder;
 
 public class RawRowEncoder {
 
