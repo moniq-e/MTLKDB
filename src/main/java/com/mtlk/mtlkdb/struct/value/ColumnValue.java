@@ -2,13 +2,14 @@ package com.mtlk.mtlkdb.struct.value;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.mtlk.mtlkdb.struct.encoder.ComparableByteArray;
 import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 
 public class ColumnValue extends LiteralValue {
     private String columnName;
     
     public ColumnValue(String value) {
-        super((byte[]) null);
+        super((ComparableByteArray) null);
         columnName = value;
     }
 

@@ -1,5 +1,5 @@
 package persistence.index;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import com.mtlk.mtlkdb.core.persistence.index.IndexInternalPage;
 
 public class IndexInternalTest {
+
     @Test
     public void testInternal_getChildPageId() {
         var page = buildSampleInternalPage();
@@ -56,7 +57,7 @@ public class IndexInternalTest {
 
         var deserialized = IndexInternalPage.deserialize(serialized);
         assertNotNull(deserialized);
-        assertArrayEquals(serialized, deserialized.serialize());
+        assertEquals(serialized, deserialized.serialize());
 
         assertEquals(page.getChildPageId(0), deserialized.getChildPageId(0));
         assertEquals(page.getChildPageId(20), deserialized.getChildPageId(20));

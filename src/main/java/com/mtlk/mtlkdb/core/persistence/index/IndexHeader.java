@@ -1,8 +1,10 @@
 package com.mtlk.mtlkdb.core.persistence.index;
 
 import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.PERSIST;
 
 import com.mtlk.mtlkdb.core.persistence.SerializablePage;
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
 import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 
 public class IndexHeader implements SerializablePage {
@@ -18,8 +20,8 @@ public class IndexHeader implements SerializablePage {
         nextFreePageId = 2;
     }
 
-    public static IndexHeader deserialize(byte[] data) {
-        var buffer = new ByteBufferMan(data);
+    public static IndexHeader deserialize(PersistByteArray data) {
+        var buffer = new ByteBufferMan<>(data);
         var header = new IndexHeader();
 
         var hb = buffer.get();
@@ -34,8 +36,8 @@ public class IndexHeader implements SerializablePage {
     }
 
     @Override
-    public byte[] serialize() {
-        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
+    public PersistByteArray serialize() {
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE, PERSIST);
 
         buffer.put(HEADER_BYTE);
         buffer.putInt(getRootPageId());

@@ -20,8 +20,8 @@ import com.mtlk.mtlkdb.expression.Equals;
 import com.mtlk.mtlkdb.struct.ColumnDefinition;
 import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.ConstraintMap;
+import com.mtlk.mtlkdb.struct.encoder.RawRowEncoder;
 import com.mtlk.mtlkdb.struct.rawrow.RawRow;
-import com.mtlk.mtlkdb.struct.rawrow.RawRowEncoder;
 import com.mtlk.mtlkdb.struct.value.ColumnValue;
 import com.mtlk.mtlkdb.struct.value.LiteralValue;
 

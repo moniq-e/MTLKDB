@@ -1,5 +1,7 @@
 package com.mtlk.mtlkdb.core.persistence.index;
 
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.PERSIST;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,6 +13,7 @@ import com.mtlk.mtlkdb.core.persistence.DiskManager;
 import com.mtlk.mtlkdb.dto.SplitDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
 import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 
 public class IndexManager implements Closeable {
@@ -30,7 +33,7 @@ public class IndexManager implements Closeable {
 
         var pageData = indexDM.readPage(currentPageId);
 
-        while (pageData[0] == IndexPageType.INTERNAL.get()) { 
+        while (pageData.value()[0] == IndexPageType.INTERNAL.get()) { 
             currentPageId = findChildPageIdInInternalNode(pageData, key);
             pageData = indexDM.readPage(currentPageId);
         }
@@ -45,7 +48,7 @@ public class IndexManager implements Closeable {
 
         var pageData = indexDM.readPage(currentPageId);
 
-        while (pageData[0] == IndexPageType.INTERNAL.get()) { 
+        while (pageData.value()[0] == IndexPageType.INTERNAL.get()) { 
             currentPageId = findChildPageIdInInternalNode(pageData, fromKey);
             pageData = indexDM.readPage(currentPageId);
         }
@@ -94,7 +97,7 @@ public class IndexManager implements Closeable {
     private SplitDTO insertAndSplit(int pageId, int key, RecordId rid) throws IOException {
         var pageData = indexDM.readPage(pageId);
 
-        if (pageData[0] == IndexPageType.LEAF.get()) {
+        if (pageData.value()[0] == IndexPageType.LEAF.get()) {
             var leaf = IndexLeafPage.deserialize(pageData);
             leaf.insert(key, rid);
 
@@ -145,7 +148,7 @@ public class IndexManager implements Closeable {
     private boolean removeAndImplodes(int pageId, int key) throws IOException {
         var pageData = indexDM.readPage(pageId);
 
-        if (pageData[0] == IndexPageType.LEAF.get()) {
+        if (pageData.value()[0] == IndexPageType.LEAF.get()) {
             var leaf = IndexLeafPage.deserialize(pageData);
             leaf.remove(key);
 
@@ -183,13 +186,13 @@ public class IndexManager implements Closeable {
         return false;
     }
 
-    private int findChildPageIdInInternalNode(byte[] internalPageData, int key) {
+    private int findChildPageIdInInternalNode(PersistByteArray internalPageData, int key) {
         var internalPage = IndexInternalPage.deserialize(internalPageData);
         return internalPage.getChildPageId(key);
     }
 
     private void freePage(int pageId) throws IOException {
-        var bytes = ByteBufferMan.allocate(PAGE_SIZE);
+        var bytes = ByteBufferMan.allocate(PAGE_SIZE, PERSIST);
 
         bytes.putInt(header.getFreePageHead());
         header.setFreePageHead(pageId);
@@ -206,7 +209,7 @@ public class IndexManager implements Closeable {
             return freePageId;
         }
 
-        var bytes = new ByteBufferMan(indexDM.readPage(freePageId));
+        var bytes = new ByteBufferMan<>(indexDM.readPage(freePageId));
         header.setNextFreePageId(bytes.getInt());
 
         return freePageId;

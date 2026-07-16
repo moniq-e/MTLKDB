@@ -1,12 +1,14 @@
 package com.mtlk.mtlkdb.core.persistence.index;
 
 import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.PERSIST;
 
 import java.util.ArrayList;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.mtlk.mtlkdb.struct.IndexPageType;
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
 import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 
 public class IndexInternalPage extends AbstractIndexPage {
@@ -23,8 +25,9 @@ public class IndexInternalPage extends AbstractIndexPage {
         childPageIds.add(firstChildId);
     }
 
-    public byte[] serialize() {
-        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
+    @Override
+    public PersistByteArray serialize() {
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE, PERSIST);
         
         buffer.put(IndexPageType.INTERNAL.get());
         buffer.putInt(keys.size());
@@ -40,8 +43,8 @@ public class IndexInternalPage extends AbstractIndexPage {
     }
 
     @Nullable
-    public static IndexInternalPage deserialize(byte[] pageData) {
-        var buffer = new ByteBufferMan(pageData);
+    public static IndexInternalPage deserialize(PersistByteArray pageData) {
+        var buffer = new ByteBufferMan<>(pageData);
         
         var type = buffer.get();
         if (type != IndexPageType.INTERNAL.get()) return null;
@@ -87,7 +90,7 @@ public class IndexInternalPage extends AbstractIndexPage {
 
     @Override
     public AbstractIndexPage split(int _thisPageId, int _newPageId) {
-        var newPageBuffer = ByteBufferMan.allocate(PAGE_SIZE);
+        var newPageBuffer = ByteBufferMan.allocate(PAGE_SIZE, PERSIST);
 
         var mid = Math.ceilDiv(keys.size(), 2);
 

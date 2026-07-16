@@ -3,11 +3,11 @@ package com.mtlk.mtlkdb.core.persistence.record;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 import com.mtlk.mtlkdb.core.persistence.DiskManager;
 import com.mtlk.mtlkdb.struct.FrameUsage;
 import com.mtlk.mtlkdb.struct.RecordId;
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
 
 public class BufferPool implements Closeable {
     private static final int PAGE_SIZE = DiskManager.PAGE_SIZE;
@@ -85,7 +85,7 @@ public class BufferPool implements Closeable {
         }
     }
 
-    public RecordId insertRecord(byte[] record) throws IOException {
+    public RecordId insertRecord(PersistByteArray record) throws IOException {
         var totalPages = getTotalPages();
 
         for (int i = 0; i < totalPages; i++) {
@@ -115,12 +115,12 @@ public class BufferPool implements Closeable {
         return RecordPage.deserialize(frameId, readFromMemory(frameId));
     }
 
-    private byte[] readFromMemory(int frameId) {
+    private PersistByteArray readFromMemory(int frameId) {
         var index = frameId * PAGE_SIZE;
-        return Arrays.copyOfRange(memory, index, index + PAGE_SIZE);
+        return PersistByteArray.copyOf(memory, index, index + PAGE_SIZE);
     }
 
-    private void writeToMemory(int frameId, byte[] data) {
+    private void writeToMemory(int frameId, PersistByteArray data) {
         System.arraycopy(data, 0, memory, frameId * PAGE_SIZE, PAGE_SIZE);
     }
 

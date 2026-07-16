@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Path;
 
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
+
 public class DiskManager implements Closeable {
     public static final int PAGE_SIZE = 4096;
     private RandomAccessFile dbFile;
@@ -13,24 +15,24 @@ public class DiskManager implements Closeable {
         dbFile = new RandomAccessFile(path.toString(), "rw");
     }
 
-    public byte[] readPage(int pageId) throws IOException {
+    public PersistByteArray readPage(int pageId) throws IOException {
         byte[] pageData = new byte[PAGE_SIZE];
         long offset = (long) pageId * PAGE_SIZE;
 
         dbFile.seek(offset);
         dbFile.read(pageData);
 
-        return pageData;
+        return PersistByteArray.of(pageData);
     }
 
-    public void writePage(int pageId, byte[] pageData) throws IOException {
-        if (pageData.length != PAGE_SIZE) {
+    public void writePage(int pageId, PersistByteArray pageData) throws IOException {
+        if (pageData.length() != PAGE_SIZE) {
             throw new IllegalArgumentException("A página deve ter exatamente "+PAGE_SIZE+" bytes.");
         }
         long offset = (long) pageId * PAGE_SIZE;
 
         dbFile.seek(offset);
-        dbFile.write(pageData);
+        dbFile.write(pageData.value());
     }
 
     public void writePage(int pageId, SerializablePage page) throws IOException {

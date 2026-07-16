@@ -3,22 +3,34 @@ package com.mtlk.mtlkdb.struct.util;
 import java.util.Arrays;
 
 import com.mtlk.mtlkdb.core.persistence.DiskManager;
+import com.mtlk.mtlkdb.struct.encoder.AbstractByteArray;
+import com.mtlk.mtlkdb.struct.encoder.Encoder;
 
-public class ByteBufferMan {
+public class ByteBufferMan<T extends AbstractByteArray> {
     public static final byte[] EMPTY_PAGE = new byte[DiskManager.PAGE_SIZE];
 
     private byte[] byteArr;
     private int idx;
     private boolean isOpen;
+    private Encoder<T> encoder;
 
-    public ByteBufferMan(byte[] byteArr) {
+    private ByteBufferMan(byte[] byteArr, Encoder<T> encoder) {
         this.byteArr = byteArr;
+        this.encoder = encoder;
         idx = 0;
         isOpen = true;
     }
 
-    public static ByteBufferMan allocate(int size) {
-        return new ByteBufferMan(new byte[size]);
+    public ByteBufferMan(T byteArr) {
+        this(byteArr.value(), Encoder.getEncoder(byteArr));
+    }
+
+    public static <T extends AbstractByteArray> ByteBufferMan<T> allocate(int size, Encoder<T> encoder) {
+        return new ByteBufferMan<>(new byte[size], encoder);
+    }
+
+    public void put(T value, int index) {
+        put(value.value(), index);
     }
 
     public void put(byte[] value, int index) {
@@ -34,6 +46,10 @@ public class ByteBufferMan {
         idx++;
     }
     
+    public void put(T value) {
+        put(value.value());
+    }
+
     public void put(byte[] value) {
         checkOpen();
 
@@ -44,14 +60,14 @@ public class ByteBufferMan {
     public void putInt(int value) {
         checkOpen();
 
-        System.arraycopy(Encoder.encodeInt(value), 0, byteArr, idx, 4);
+        System.arraycopy(encoder.encodeInt(value), 0, byteArr, idx, 4);
         idx += 4;
     }
 
     public void putShort(int value) {
         checkOpen();
 
-        System.arraycopy(Encoder.encodeShort(value), 0, byteArr, idx, 2);
+        System.arraycopy(encoder.encodeShort(value), 0, byteArr, idx, 2);
         idx += 2;
     }
 
@@ -64,7 +80,7 @@ public class ByteBufferMan {
     public int getInt() {
         checkOpen();
 
-        var res = Encoder.decodeInt(Arrays.copyOfRange(byteArr, idx, idx + 4));
+        var res = encoder.decodeInt(encoder.encap(Arrays.copyOfRange(byteArr, idx, idx + 4)));
         idx += 4;
         return res;
     }
@@ -74,17 +90,16 @@ public class ByteBufferMan {
     }
 
     public int getInt(int index) {
-        return Encoder.decodeInt(Arrays.copyOfRange(byteArr, index, index + 4));
+        return encoder.decodeInt(encoder.encap(Arrays.copyOfRange(byteArr, index, index + 4)));
     }
 
     public byte[] get(int index, int length) {
         return Arrays.copyOfRange(byteArr, index, length);
     }
 
-    public byte[] toArray() {
+    public T toArray() {
         isOpen = false;
-
-        return byteArr;
+        return encoder.encap(byteArr);
     }
 
     private void checkOpen() {

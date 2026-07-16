@@ -1,21 +1,21 @@
 package com.mtlk.mtlkdb.struct.value;
 
-import java.util.Arrays;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.COMPARABLE;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.mtlk.mtlkdb.struct.encoder.ComparableByteArray;
+import com.mtlk.mtlkdb.struct.encoder.RawRowEncoder;
 import com.mtlk.mtlkdb.struct.rawrow.RawRow;
-import com.mtlk.mtlkdb.struct.rawrow.RawRowEncoder;
-import com.mtlk.mtlkdb.struct.util.Encoder;
 
 public class LiteralValue implements Comparable<LiteralValue> {
-    private byte[] buffer;
+    private ComparableByteArray buffer;
 
     public LiteralValue(String value) {
         buffer = RawRowEncoder.encodeString(value);
     }
 
-    protected LiteralValue(byte[] value) {
+    protected LiteralValue(ComparableByteArray value) {
         buffer = value;
     }
 
@@ -26,10 +26,10 @@ public class LiteralValue implements Comparable<LiteralValue> {
 
     @Override
     public int compareTo(LiteralValue o) {
-        return Arrays.compare(buffer, o.buffer);
+        return buffer.compareTo(o.buffer);
     }
 
     public int asInt() {
-        return Encoder.decodeInt(buffer);
+        return COMPARABLE.decodeInt(buffer);
     }
 }

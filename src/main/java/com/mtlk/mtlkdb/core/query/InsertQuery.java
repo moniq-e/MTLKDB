@@ -3,8 +3,8 @@ package com.mtlk.mtlkdb.core.query;
 import java.util.ArrayList;
 
 import com.mtlk.mtlkdb.core.Storage;
+import com.mtlk.mtlkdb.struct.encoder.RawRowEncoder;
 import com.mtlk.mtlkdb.struct.rawrow.RawRow;
-import com.mtlk.mtlkdb.struct.rawrow.RawRowEncoder;
 import com.mtlk.mtlkdb.struct.util.ArrayAsCollection;
 
 public class InsertQuery {

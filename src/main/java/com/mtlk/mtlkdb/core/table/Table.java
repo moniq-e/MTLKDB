@@ -1,6 +1,7 @@
 package com.mtlk.mtlkdb.core.table;
 
 import static com.mtlk.mtlkdb.core.persistence.record.RecordPage.VARCHAR_SIZE_BYTES;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.PERSIST;
 
 import java.io.Closeable;
 import java.io.File;
@@ -15,9 +16,10 @@ import com.mtlk.mtlkdb.core.persistence.record.BufferPool;
 import com.mtlk.mtlkdb.expression.Expression;
 import com.mtlk.mtlkdb.struct.ColumnType;
 import com.mtlk.mtlkdb.struct.RecordId;
+import com.mtlk.mtlkdb.struct.encoder.ComparableByteArray;
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
 import com.mtlk.mtlkdb.struct.rawrow.RawRow;
 import com.mtlk.mtlkdb.struct.util.ArrayAsCollection;
-import com.mtlk.mtlkdb.struct.util.Encoder;
 
 public class Table implements Closeable {
     private String tableName;
@@ -135,7 +137,6 @@ public class Table implements Closeable {
                 if (expression == null || expression.evaluate(row)) resultRows.add(row);
             }
         }
-
         return resultRows.toArray(RawRow[]::new);
     }
 
@@ -144,7 +145,7 @@ public class Table implements Closeable {
 
         var pk = schema.getPrimaryKey();
         if (pk.columnType() == ColumnType.INT) {
-            indexManager.insert(Encoder.decodeInt(row.getValue(pk.name())), rid);
+            indexManager.insert(PERSIST.decodeInt(row.getValue(pk.name()).toPersist()), rid);
         }
         return true;
     }
@@ -162,21 +163,21 @@ public class Table implements Closeable {
         return count;
     }
 
-    public RawRow deserializeRow(byte[] record) {
-        var rowData = new byte[schema.size()][];
+    public RawRow deserializeRow(PersistByteArray record) {
+        var rowData = new ComparableByteArray[schema.size()];
 
         int k = 0;
         for (int i = 0; i < schema.size(); i++) {
             var colType = schema.get(i).columnType();
             
             if (colType.isVarchar()) {
-                var varsize = (record[k] << 8) | record[k + 1];
+                var varsize = (record.value()[k] << 8) | record.value()[k + 1];
                 
-                System.arraycopy(record, k + VARCHAR_SIZE_BYTES, rowData[i], 0, varsize);
+                int from = k + VARCHAR_SIZE_BYTES;
+                rowData[i] = PersistByteArray.copyOf(record, from, from + varsize).toComparable();
                 k += VARCHAR_SIZE_BYTES + varsize;
             } else {
-                rowData[i] = new byte[colType.getSize()];
-                System.arraycopy(record, k, rowData[i], 0, colType.getSize());
+                rowData[i] = PersistByteArray.copyOf(record, k, k + colType.getSize()).toComparable();
                 k += colType.getSize();
             }
         }

@@ -1,6 +1,7 @@
 package com.mtlk.mtlkdb.core.persistence.index;
 
 import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.PERSIST;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import com.mtlk.mtlkdb.dto.RecordIdsDTO;
 import com.mtlk.mtlkdb.struct.IndexPageType;
 import com.mtlk.mtlkdb.struct.RecordId;
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
 import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
 import com.mtlk.mtlkdb.struct.util.SortedArrayList;
 
@@ -40,8 +42,8 @@ public class IndexLeafPage extends AbstractIndexPage {
     }
 
     @Override
-    public byte[] serialize() {
-        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
+    public PersistByteArray serialize() {
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE, PERSIST);
 
         buffer.put(IndexPageType.LEAF.get());
         buffer.put(HEADER_BYTE);
@@ -59,8 +61,8 @@ public class IndexLeafPage extends AbstractIndexPage {
     }
 
     @Nullable
-    public static IndexLeafPage deserialize(byte[] pageData) {
-        var buffer = new ByteBufferMan(pageData);
+    public static IndexLeafPage deserialize(PersistByteArray pageData) {
+        var buffer = new ByteBufferMan<>(pageData);
 
         var type = buffer.get();
         if (type != IndexPageType.LEAF.get()) return null;

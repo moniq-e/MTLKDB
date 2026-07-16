@@ -1,8 +1,9 @@
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Test;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.COMPARABLE;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.PERSIST;
 
-import com.mtlk.mtlkdb.struct.util.Encoder;
+import org.junit.jupiter.api.Test;
 
 public class GeneralTest {
     
@@ -12,10 +13,18 @@ public class GeneralTest {
     }
 
     @Test
-    public void testIntEncode() {
-        assertEquals(4, Encoder.decodeInt(Encoder.encodeInt(4)));
-        assertEquals(0xFF, Encoder.decodeInt(Encoder.encodeInt(0xFF)));
-        assertEquals(37898, Encoder.decodeInt(Encoder.encodeInt(37898)));
-        assertEquals(-37898, Encoder.decodeInt(Encoder.encodeInt(-37898)));
+    public void testComparableIntEncode() {
+        assertEquals(4, COMPARABLE.decodeInt(COMPARABLE.encodeInt(4)));
+        assertEquals(0xFF, COMPARABLE.decodeInt(COMPARABLE.encodeInt(0xFF)));
+        assertEquals(37898, COMPARABLE.decodeInt(COMPARABLE.encodeInt(37898)));
+        assertEquals(-37898, COMPARABLE.decodeInt(COMPARABLE.encodeInt(-37898)));
+    }
+
+    @Test
+    public void testPersistIntEncode() {
+        assertEquals(4, PERSIST.decodeInt(PERSIST.encodeInt(4)));
+        assertEquals(0xFF, PERSIST.decodeInt(PERSIST.encodeInt(0xFF)));
+        assertEquals(37898, PERSIST.decodeInt(PERSIST.encodeInt(37898)));
+        assertEquals(-37898, PERSIST.decodeInt(PERSIST.encodeInt(-37898)));
     }
 }

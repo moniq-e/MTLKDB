@@ -1,15 +1,15 @@
 package com.mtlk.mtlkdb.core.persistence.record;
 
 import static com.mtlk.mtlkdb.core.persistence.index.IndexManager.PAGE_SIZE;
+import static com.mtlk.mtlkdb.struct.encoder.Encoder.PERSIST;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.mtlk.mtlkdb.core.persistence.SerializablePage;
+import com.mtlk.mtlkdb.struct.encoder.PersistByteArray;
 import com.mtlk.mtlkdb.struct.util.ByteBufferMan;
-import com.mtlk.mtlkdb.struct.util.Encoder;
 
 public class RecordPage implements SerializablePage {
     public static final int VARCHAR_SIZE_BYTES = 2;
@@ -19,7 +19,7 @@ public class RecordPage implements SerializablePage {
 
     private int id;
     private ArrayList<Short> header;
-    private ArrayList<byte[]> records;
+    private ArrayList<PersistByteArray> records;
 
     protected RecordPage(int pageId) {
         this.id = pageId;
@@ -27,28 +27,28 @@ public class RecordPage implements SerializablePage {
         this.records = new ArrayList<>();
     }
 
-    public static RecordPage deserialize(int pageId, byte[] data) {
+    public static RecordPage deserialize(int pageId, PersistByteArray data) {
         var page = new RecordPage(pageId);
 
-        var headerSlotCount = Encoder.decodeShort(Arrays.copyOfRange(data, 0, HEADER_SIZE_BYTES));
+        var headerSlotCount = PERSIST.decodeShort(PersistByteArray.copyOf(data, 0, HEADER_SIZE_BYTES));
 
         for (int i = 0; i < headerSlotCount; i += HEADER_SLOT_SIZE_BYTES) {
             var slotPos = HEADER_SIZE_BYTES + i;
 
-            var realPos = Encoder.decodeShort(Arrays.copyOfRange(data, slotPos, slotPos + HEADER_SLOT_SIZE_BYTES));
+            var realPos = PERSIST.decodeShort(PersistByteArray.copyOf(data, slotPos, slotPos + HEADER_SLOT_SIZE_BYTES));
             page.header.add(realPos);
 
-            int recordSize = Encoder.decodeInt(Arrays.copyOfRange(data, realPos, realPos + RECORD_SIZE_BYTES));
+            int recordSize = PERSIST.decodeInt(PersistByteArray.copyOf(data, realPos, realPos + RECORD_SIZE_BYTES));
             int recordStart = realPos + RECORD_SIZE_BYTES;
 
-            page.records.add(Arrays.copyOfRange(data, recordStart, recordStart + recordSize));
+            page.records.add(PersistByteArray.copyOf(data, recordStart, recordStart + recordSize));
         }
         return page;
     }
 
     @Override
-    public byte[] serialize() {
-        var buffer = ByteBufferMan.allocate(PAGE_SIZE);
+    public PersistByteArray serialize() {
+        var buffer = ByteBufferMan.allocate(PAGE_SIZE, PERSIST);
 
         buffer.putShort(header.size());
 
@@ -57,28 +57,28 @@ public class RecordPage implements SerializablePage {
             buffer.putShort(realPos);
 
             var record = records.get(i);
-            buffer.put(Encoder.encodeInt(record.length), realPos);
+            buffer.put(PERSIST.encodeInt(record.length()), realPos);
             buffer.put(record, realPos + RECORD_SIZE_BYTES);
         }
 
         return buffer.toArray();
     }
 
-    public byte[] getRecord(int slotId) {
+    public PersistByteArray getRecord(int slotId) {
         return records.get(slotId);
     }
 
     //TODO: mudar pra inserção no fim da pagina
-    public int insertRecord(byte[] record) {
+    public int insertRecord(PersistByteArray record) {
         int nextFreePos;
 
         if (header.isEmpty()) {
             nextFreePos = HEADER_SIZE_BYTES + HEADER_SLOT_SIZE_BYTES;
         } else {
-            nextFreePos = header.getLast() + records.getLast().length;
+            nextFreePos = header.getLast() + records.getLast().length();
         }
 
-        if (record.length > PAGE_SIZE - nextFreePos) return -1;
+        if (record.length() > PAGE_SIZE - nextFreePos) return -1;
 
         header.add((short) nextFreePos);
         records.add(record);
@@ -86,12 +86,12 @@ public class RecordPage implements SerializablePage {
         return records.size() - 1;
     }
 
-    public int insertRecord(List<byte[]> rawRecords) {
-        var freeSize = PAGE_SIZE - (header.getLast() + records.getLast().length);
+    public int insertRecord(List<PersistByteArray> rawRecords) {
+        var freeSize = PAGE_SIZE - (header.getLast() + records.getLast().length());
 
         var actualSize = 0;
         for (int i = 0; i < rawRecords.size(); i++) {
-            actualSize += rawRecords.get(i).length;
+            actualSize += rawRecords.get(i).length();
             if (actualSize > freeSize) return -1;
         }
 
@@ -101,7 +101,7 @@ public class RecordPage implements SerializablePage {
 
     public void removeRecord(int slotId) {
         header.remove(slotId);
-        var removedSize = records.remove(slotId).length;
+        var removedSize = records.remove(slotId).length();
 
         for (int i = slotId; i < header.size(); i++) {
             header.set(i, (short) (header.get(i) - removedSize));
@@ -112,7 +112,7 @@ public class RecordPage implements SerializablePage {
         header.subList(fromSlotId, toSlotId + 1).clear();
         var sublist = records.subList(fromSlotId, toSlotId + 1);
 
-        int removedSize = sublist.stream().mapToInt(e -> e.length).sum();
+        int removedSize = sublist.stream().mapToInt(e -> e.length()).sum();
         sublist.clear();
 
         if (removedSize <= 0) return;
@@ -122,7 +122,7 @@ public class RecordPage implements SerializablePage {
         }
     }
 
-    public List<byte[]> getRecords() {
+    public List<PersistByteArray> getRecords() {
         return Collections.unmodifiableList(records);
     }
 
